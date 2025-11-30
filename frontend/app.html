@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTable Clone - Restaurant Reservations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .restaurant-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .restaurant-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-red-600">OpenTable Clone</h1>
+                <nav class="flex space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-red-600" onclick="showSection('home')">Home</a>
+                    <a href="#" class="text-gray-600 hover:text-red-600" onclick="showSection('search')">Search</a>
+                    <a href="#" class="text-gray-600 hover:text-red-600" onclick="showSection('reservations')">My Reservations</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Home Section -->
+        <div id="home-section" class="section">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Find your table for any occasion</h2>
+                <p class="text-xl text-gray-600">Book dining experiences at thousands of restaurants</p>
+            </div>
+
+            <!-- Search Form -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <select id="location-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Locations</option>
+                            <option value="downtown">Downtown</option>
+                            <option value="midtown">Midtown</option>
+                            <option value="uptown">Uptown</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
+                        <select id="cuisine-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">All Cuisines</option>
+                            <option value="italian">Italian</option>
+                            <option value="japanese">Japanese</option>
+                            <option value="american">American</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                        <select id="price-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="">Any Price</option>
+                            <option value="$$">$$</option>
+                            <option value="$$$">$$$</option>
+                            <option value="$$$$">$$$$</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="searchRestaurants()" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                            Find Table
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurants Grid -->
+            <div id="restaurants-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Restaurants will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div id="search-section" class="section hidden">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">Search Results</h2>
+            <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Search results will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Reservations Section -->
+        <div id="reservations-section" class="section hidden">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">My Reservations</h2>
+            <div id="reservations-container">
+                <!-- Reservations will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Reservation Modal -->
+    <div id="reservation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Make a Reservation</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="reservation-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Restaurant</label>
+                        <p id="restaurant-name" class="text-gray-900 font-medium"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input type="date" id="reservation-date" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                            <select id="reservation-time" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="6:30 PM">6:30 PM</option>
+                                <option value="7:00 PM">7:00 PM</option>
+                                <option value="7:30 PM">7:30 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                                <option value="8:30 PM">8:30 PM</option>
+                                <option value="9:00 PM">9:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Party Size</label>
+                        <select id="party-size" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="1">1 person</option>
+                            <option value="2">2 people</option>
+                            <option value="3">3 people</option>
+                            <option value="4">4 people</option>
+                            <option value="5">5 people</option>
+                            <option value="6">6 people</option>
+                            <option value="7">7 people</option>
+                            <option value="8">8 people</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                        <input type="text" id="customer-name" placeholder="Your full name" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="customer-email" placeholder="your@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <button onclick="makeReservation()" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                        Complete Reservation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let currentRestaurant = null;
+
+        // Load restaurants on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRestaurants();
+            setMinDate();
+        });
+
+        function setMinDate() {
+            const dateInput = document.getElementById('reservation-date');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.min = today;
+            dateInput.value = today;
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+
+            // Load section-specific data
+            if (sectionName === 'reservations') {
+                loadReservations();
+            }
+        }
+
+        async function loadRestaurants() {
+            try {
+                const response = await fetch(`${API_BASE}/restaurants`);
+                const data = await response.json();
+                displayRestaurants(data.restaurants);
+            } catch (error) {
+                console.error('Error loading restaurants:', error);
+                showError('Failed to load restaurants');
+            }
+        }
+
+        async function searchRestaurants() {
+            const location = document.getElementById('location-filter').value;
+            const cuisine = document.getElementById('cuisine-filter').value;
+            const price = document.getElementById('price-filter').value;
+
+            const params = new URLSearchParams();
+            if (location) params.append('location', location);
+            if (cuisine) params.append('cuisine', cuisine);
+            if (price) params.append('price', price);
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurants?${params}`);
+                const data = await response.json();
+                displayRestaurants(data.restaurants);
+            } catch (error) {
+                console.error('Error searching restaurants:', error);
+                showError('Failed to search restaurants');
+            }
+        }
+
+        function displayRestaurants(restaurants) {
+            const container = document.getElementById('restaurants-container');
+
+            if (restaurants.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">No restaurants found</div>';
+                return;
+            }
+
+            container.innerHTML = restaurants.map(restaurant => `
+                <div class="restaurant-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${restaurant.name}</h3>
+                        <p class="text-gray-600 mb-2">${restaurant.cuisine} • ${restaurant.location}</p>
+                        <p class="text-gray-600 mb-3">${restaurant.description || ''}</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <span class="text-yellow-400">★</span>
+                                <span class="ml-1 text-gray-700">${restaurant.rating}</span>
+                            </div>
+                            <span class="text-gray-700 font-medium">${restaurant.priceRange}</span>
+                        </div>
+                        <button onclick="openReservationModal(${restaurant.id}, '${restaurant.name}')"
+                                class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                            Reserve Table
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openReservationModal(restaurantId, restaurantName) {
+            currentRestaurant = { id: restaurantId, name: restaurantName };
+            document.getElementById('restaurant-name').textContent = restaurantName;
+            document.getElementById('reservation-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('reservation-modal').classList.add('hidden');
+            currentRestaurant = null;
+        }
+
+        async function makeReservation() {
+            if (!currentRestaurant) return;
+
+            const reservation = {
+                restaurantId: currentRestaurant.id,
+                date: document.getElementById('reservation-date').value,
+                time: document.getElementById('reservation-time').value,
+                partySize: parseInt(document.getElementById('party-size').value),
+                customerInfo: {
+                    name: document.getElementById('customer-name').value,
+                    email: document.getElementById('customer-email').value
+                }
+            };
+
+            // Validate required fields
+            if (!reservation.customerInfo.name || !reservation.customerInfo.email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reservation)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Reservation confirmed! Confirmation number: ${data.reservation.confirmationNumber}`);
+                    closeModal();
+                    // Clear form
+                    document.getElementById('customer-name').value = '';
+                    document.getElementById('customer-email').value = '';
+                } else {
+                    alert('Failed to make reservation');
+                }
+            } catch (error) {
+                console.error('Error making reservation:', error);
+                alert('Failed to make reservation');
+            }
+        }
+
+        async function loadReservations() {
+            try {
+                const response = await fetch(`${API_BASE}/reservations`);
+                const data = await response.json();
+                displayReservations(data.reservations);
+            } catch (error) {
+                console.error('Error loading reservations:', error);
+                showError('Failed to load reservations');
+            }
+        }
+
+        function displayReservations(reservations) {
+            const container = document.getElementById('reservations-container');
+
+            if (reservations.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500 py-8">No reservations found</div>';
+                return;
+            }
+
+            container.innerHTML = reservations.map(reservation => `
+                <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">${reservation.customerInfo?.name || 'N/A'}</h3>
+                            <p class="text-gray-600">Date: ${reservation.date}</p>
+                            <p class="text-gray-600">Time: ${reservation.time}</p>
+                            <p class="text-gray-600">Party Size: ${reservation.partySize}</p>
+                            ${reservation.confirmationNumber ? `<p class="text-gray-600">Confirmation: ${reservation.confirmationNumber}</p>` : ''}
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm ${reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${reservation.status}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('reservation-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

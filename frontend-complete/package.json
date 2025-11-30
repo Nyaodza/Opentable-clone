@@ -1,0 +1,51 @@
+{
+  "name": "opentable-clone-frontend",
+  "version": "1.0.0",
+  "description": "OpenTable Clone Frontend with Disruptive Features",
+  "main": "app.js",
+  "scripts": {
+    "start": "python3 -m http.server 8081",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:performance": "jest --testPathPattern=performance",
+    "lint": "eslint *.js tests/*.js",
+    "serve": "python3 -m http.server 8081"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "playwright": "^1.40.0",
+    "eslint": "^8.0.0",
+    "@testing-library/jest-dom": "^6.0.0",
+    "jest-environment-jsdom": "^29.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "collectCoverageFrom": [
+      "*.js",
+      "!node_modules/**",
+      "!tests/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
+  },
+  "keywords": [
+    "opentable",
+    "blockchain",
+    "vr",
+    "ai",
+    "social-dining",
+    "sustainability",
+    "voice-control"
+  ],
+  "author": "OpenTable Clone Team",
+  "license": "MIT"
+}

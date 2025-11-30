@@ -1,0 +1,180 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  redis:
+    image: redis:7-alpine
+    container_name: dashboard-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./microservices/auth-service
+      dockerfile: Dockerfile
+    container_name: dashboard-auth-service
+    ports:
+      - "8034:8034"
+    environment:
+      - NODE_ENV=production
+      - PORT=8034
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - SESSION_MAX_AGE=${SESSION_MAX_AGE}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=3
+      - ADMIN_EMAILS=${ADMIN_EMAILS}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - LOG_LEVEL=info
+      - CORS_ORIGINS=http://localhost,http://localhost:3000,http://localhost:80
+    depends_on:
+      - redis
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    volumes:
+      - ./microservices/auth-service/logs:/app/logs
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: ./microservices/analytics-service
+      dockerfile: Dockerfile
+    container_name: dashboard-analytics-service
+    ports:
+      - "8031:8031"
+    environment:
+      - NODE_ENV=production
+      - PORT=8031
+      - GA4_PROPERTY_ID=${GA4_PROPERTY_ID}
+      - GOOGLE_SERVICE_ACCOUNT_EMAIL=${GOOGLE_SERVICE_ACCOUNT_EMAIL}
+      - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+      - GOOGLE_PRIVATE_KEY=${GOOGLE_PRIVATE_KEY}
+      - GOOGLE_CLIENT_EMAIL=${GOOGLE_CLIENT_EMAIL}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - LOG_LEVEL=info
+      - RATE_LIMIT_MAX=100
+      - CORS_ORIGINS=http://localhost,http://localhost:3000,http://localhost:80
+    depends_on:
+      - redis
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    volumes:
+      - ./microservices/analytics-service/logs:/app/logs
+      - ./google-service-account.json:/app/google-service-account.json:ro
+
+  # Search Console Service
+  search-console-service:
+    build:
+      context: ./microservices/search-console-service
+      dockerfile: Dockerfile
+    container_name: dashboard-search-console-service
+    ports:
+      - "8032:8032"
+    environment:
+      - NODE_ENV=production
+      - PORT=8032
+      - SEARCH_CONSOLE_SITE_URL=${SEARCH_CONSOLE_SITE_URL}
+      - GOOGLE_SERVICE_ACCOUNT_EMAIL=${GOOGLE_SERVICE_ACCOUNT_EMAIL}
+      - GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+      - GOOGLE_PRIVATE_KEY=${GOOGLE_PRIVATE_KEY}
+      - GOOGLE_CLIENT_EMAIL=${GOOGLE_CLIENT_EMAIL}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=1
+      - LOG_LEVEL=info
+      - RATE_LIMIT_MAX=100
+      - CORS_ORIGINS=http://localhost,http://localhost:3000,http://localhost:80
+    depends_on:
+      - redis
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    volumes:
+      - ./microservices/search-console-service/logs:/app/logs
+      - ./google-service-account.json:/app/google-service-account.json:ro
+
+  # Cache Aggregator Service
+  cache-service:
+    build:
+      context: ./microservices/admin-dashboard-cache
+      dockerfile: Dockerfile
+    container_name: dashboard-cache-service
+    ports:
+      - "8033:8033"
+    environment:
+      - NODE_ENV=production
+      - PORT=8033
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=2
+      - ANALYTICS_SERVICE_URL=http://analytics-service:8031
+      - SEARCH_CONSOLE_SERVICE_URL=http://search-console-service:8032
+      - LOG_LEVEL=info
+      - CORS_ORIGINS=http://localhost,http://localhost:3000,http://localhost:80
+    depends_on:
+      - redis
+      - analytics-service
+      - search-console-service
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    volumes:
+      - ./microservices/admin-dashboard-cache/logs:/app/logs
+
+  # React Admin Dashboard
+  admin-dashboard:
+    build:
+      context: ./admin-dashboard
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_ANALYTICS_API_URL=/api/analytics
+        - REACT_APP_SEARCH_CONSOLE_API_URL=/api/search-console
+        - REACT_APP_CACHE_API_URL=/api/cache
+        - REACT_APP_AUTH_SERVICE_URL=/api/auth
+    container_name: dashboard-frontend
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - auth-service
+      - analytics-service
+      - search-console-service
+      - cache-service
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+    volumes:
+      - ./admin-dashboard/nginx-logs:/var/log/nginx
+
+networks:
+  dashboard-network:
+    driver: bridge
+    name: dashboard-network
+
+volumes:
+  redis_data:
+    name: dashboard-redis-data

@@ -1,0 +1,163 @@
+{
+  "common": {
+    "appName": "OpenTable",
+    "loading": "Cargando...",
+    "error": "Error",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "nav": {
+    "home": "Inicio",
+    "restaurants": "Restaurantes",
+    "reservations": "Reservas",
+    "profile": "Perfil",
+    "dashboard": "Panel",
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "help": "Ayuda"
+  },
+  "home": {
+    "hero": {
+      "title": "Encuentra Tu Mesa Perfecta",
+      "subtitle": "Reserva en los mejores restaurantes de tu ciudad",
+      "searchPlaceholder": "Ubicación, Restaurante o Cocina",
+      "findTable": "Buscar Mesa"
+    },
+    "featured": {
+      "title": "Restaurantes Destacados",
+      "viewAll": "Ver Todos"
+    },
+    "cuisines": {
+      "title": "Cocinas Populares",
+      "italian": "Italiana",
+      "japanese": "Japonesa",
+      "mexican": "Mexicana",
+      "american": "Americana",
+      "french": "Francesa",
+      "chinese": "China",
+      "indian": "India",
+      "thai": "Tailandesa"
+    }
+  },
+  "restaurant": {
+    "overview": "Resumen",
+    "menu": "Menú",
+    "photos": "Fotos",
+    "reviews": "Reseñas",
+    "details": {
+      "cuisine": "Cocina",
+      "priceRange": "Rango de Precios",
+      "hours": "Horario",
+      "phone": "Teléfono",
+      "website": "Sitio Web",
+      "address": "Dirección"
+    },
+    "reservation": {
+      "selectDate": "Seleccionar Fecha",
+      "selectTime": "Seleccionar Hora",
+      "partySize": "Número de Personas",
+      "findTable": "Buscar Mesa",
+      "available": "Disponible",
+      "unavailable": "No Disponible"
+    }
+  },
+  "booking": {
+    "title": "Completa Tu Reserva",
+    "contact": {
+      "title": "Información de Contacto",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo Electrónico",
+      "phone": "Teléfono"
+    },
+    "special": {
+      "title": "Solicitudes Especiales",
+      "placeholder": "¿Alergias, ocasiones especiales o solicitudes?"
+    },
+    "confirm": "Confirmar Reserva",
+    "success": {
+      "title": "¡Reserva Confirmada!",
+      "message": "Tu reserva ha sido confirmada. Recibirás un correo de confirmación pronto.",
+      "reservationNumber": "Número de Reserva"
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Iniciar Sesión",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar Sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "signUpLink": "Regístrate"
+    },
+    "signUp": {
+      "title": "Crear Cuenta",
+      "name": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "terms": "Acepto los Términos de Servicio y la Política de Privacidad",
+      "submit": "Registrarse",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "signInLink": "Inicia sesión"
+    }
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "personal": {
+      "title": "Información Personal",
+      "name": "Nombre",
+      "email": "Correo Electrónico",
+      "phone": "Teléfono",
+      "birthday": "Cumpleaños"
+    },
+    "preferences": {
+      "title": "Preferencias Gastronómicas",
+      "cuisine": "Cocinas Favoritas",
+      "dietary": "Restricciones Dietéticas",
+      "notifications": "Notificaciones por Email"
+    },
+    "security": {
+      "title": "Seguridad",
+      "changePassword": "Cambiar Contraseña",
+      "twoFactor": "Autenticación de Dos Factores"
+    }
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido de nuevo, {{name}}!",
+    "stats": {
+      "totalReservations": "Reservas Totales",
+      "upcomingReservations": "Próximas Reservas",
+      "favoriteRestaurants": "Restaurantes Favoritos",
+      "rewardPoints": "Puntos de Recompensa"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "findTable": "Buscar Mesa",
+      "viewReservations": "Ver Reservas",
+      "browseRestaurants": "Explorar Restaurantes"
+    }
+  },
+  "errors": {
+    "notFound": "Página no encontrada",
+    "serverError": "Algo salió mal",
+    "unauthorized": "No estás autorizado para acceder a esta página",
+    "networkError": "Error de red. Por favor verifica tu conexión."
+  }
+}

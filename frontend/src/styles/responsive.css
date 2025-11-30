@@ -1,0 +1,363 @@
+/**
+ * Responsive Design Fixes
+ * Addresses tablet and mobile breakpoint issues
+ */
+
+/* Tablet Landscape (768px - 1024px) - Critical Gap */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Dashboard Grid Fixes */
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem;
+  }
+
+  /* Restaurant Cards */
+  .restaurant-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Navigation Menu */
+  .nav-menu {
+    padding: 1rem 2rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+  }
+
+  /* Forms */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tables */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Search Filters */
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  /* Sidebar Layouts */
+  .sidebar-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Tablet Portrait (768px - 900px) */
+@media (min-width: 768px) and (max-width: 900px) {
+  /* Single column for most grids */
+  .dashboard-grid,
+  .restaurant-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Larger touch targets */
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 48px;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Mobile Landscape (568px - 767px) */
+@media (min-width: 568px) and (max-width: 767px) {
+  /* Optimize for landscape viewing */
+  .hero-section {
+    min-height: 60vh;
+  }
+
+  .restaurant-card {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .restaurant-card-image {
+    width: 40%;
+  }
+
+  .restaurant-card-content {
+    width: 60%;
+  }
+}
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+  /* Touch Targets - Minimum 44px */
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  .clickable {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Navigation */
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-mobile {
+    display: block;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  /* Forms */
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+  }
+
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Cards */
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  /* Spacing */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Modals */
+  .modal {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* Small Mobile (max-width: 375px) */
+@media (max-width: 375px) {
+  /* Even more compact */
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Smaller buttons on very small screens */
+  button,
+  .btn {
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Landscape Orientation - All Devices */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* Reduce header height */
+  header {
+    height: 60px;
+  }
+
+  /* Compact hero sections */
+  .hero-section {
+    min-height: 70vh;
+    padding: 2rem 0;
+  }
+
+  /* Smaller modals */
+  .modal {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* High DPI Displays (Retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Use higher quality images */
+  .hero-bg {
+    background-image: url('/images/hero@2x.jpg');
+  }
+
+  /* Sharper borders */
+  .card {
+    border-width: 0.5px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #404040;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .card {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  /* Hide navigation and non-essential elements */
+  nav,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  /* Optimize for printing */
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+
+  /* Prevent page breaks inside elements */
+  .card,
+  .reservation-details {
+    page-break-inside: avoid;
+  }
+}
+
+/* Utility Classes for Responsive Design */
+.hide-mobile {
+  @media (max-width: 767px) {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @media (min-width: 768px) and (max-width: 1024px) {
+    display: none !important;
+  }
+}
+
+.hide-desktop {
+  @media (min-width: 1025px) {
+    display: none !important;
+  }
+}
+
+.show-mobile {
+  display: none !important;
+  @media (max-width: 767px) {
+    display: block !important;
+  }
+}
+
+.show-tablet {
+  display: none !important;
+  @media (min-width: 768px) and (max-width: 1024px) {
+    display: block !important;
+  }
+}
+
+.show-desktop {
+  display: none !important;
+  @media (min-width: 1025px) {
+    display: block !important;
+  }
+}
+
+/* Container Max-Widths by Breakpoint */
+.container-responsive {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-responsive {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-responsive {
+    max-width: 1536px;
+  }
+}

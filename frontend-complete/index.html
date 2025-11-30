@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DineReserve - Find & Book the Best Restaurants</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app"></div>
+
+    <script>
+        // Single Page Application Router
+        class Router {
+            constructor() {
+                this.routes = {};
+                this.currentRoute = null;
+            }
+
+            addRoute(path, component) {
+                this.routes[path] = component;
+            }
+
+            navigate(path) {
+                window.history.pushState({}, '', path);
+                this.render(path);
+            }
+
+            render(path = window.location.pathname) {
+                const app = document.getElementById('app');
+                const component = this.routes[path] || this.routes['/'];
+                app.innerHTML = component();
+                this.attachEventListeners();
+            }
+
+            attachEventListeners() {
+                document.querySelectorAll('[data-link]').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.navigate(link.getAttribute('href'));
+                    });
+                });
+            }
+        }
+
+        const router = new Router();
+
+        // Shared Components
+        const Header = () => `
+            <header class="bg-white shadow-sm sticky top-0 z-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center">
+                            <a href="/" data-link class="flex items-center">
+                                <i class="fas fa-utensils text-indigo-600 text-2xl mr-2"></i>
+                                <span class="font-bold text-xl text-gray-900">DineReserve</span>
+                            </a>
+                        </div>
+
+                        <nav class="hidden md:flex space-x-8">
+                            <a href="/" data-link class="text-gray-700 hover:text-indigo-600 transition">Home</a>
+                            <a href="/restaurants" data-link class="text-gray-700 hover:text-indigo-600 transition">Restaurants</a>
+                            <a href="/about" data-link class="text-gray-700 hover:text-indigo-600 transition">About</a>
+                            <a href="/contact" data-link class="text-gray-700 hover:text-indigo-600 transition">Contact</a>
+                        </nav>
+
+                        <div class="flex items-center space-x-4">
+                            <a href="/login" data-link class="text-gray-700 hover:text-indigo-600 transition">Sign In</a>
+                            <a href="/signup" data-link class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                                Sign Up
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+        `;
+
+        const Footer = () => `
+            <footer class="bg-gray-900 text-white mt-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div>
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-utensils text-indigo-400 text-2xl mr-2"></i>
+                                <span class="font-bold text-xl">DineReserve</span>
+                            </div>
+                            <p class="text-gray-400">Find and book the best restaurants in your city.</p>
+                            <div class="flex space-x-4 mt-4">
+                                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold text-lg mb-4">For Diners</h3>
+                            <ul class="space-y-2">
+                                <li><a href="/restaurants" data-link class="text-gray-400 hover:text-white">Browse Restaurants</a></li>
+                                <li><a href="/dashboard" data-link class="text-gray-400 hover:text-white">My Reservations</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Dining Rewards</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Mobile App</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold text-lg mb-4">For Restaurants</h3>
+                            <ul class="space-y-2">
+                                <li><a href="/restaurant-dashboard" data-link class="text-gray-400 hover:text-white">Dashboard</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Join Network</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Marketing Tools</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Success Stories</a></li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold text-lg mb-4">Company</h3>
+                            <ul class="space-y-2">
+                                <li><a href="/about" data-link class="text-gray-400 hover:text-white">About Us</a></li>
+                                <li><a href="/contact" data-link class="text-gray-400 hover:text-white">Contact</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Careers</a></li>
+                                <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                        <p>&copy; 2024 DineReserve. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
+        `;
+
+        // Home Page with Hero Section
+        const HomePage = () => `
+            ${Header()}
+
+            <!-- Hero Section -->
+            <section class="hero-gradient text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+                    <div class="text-center fade-in">
+                        <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                            Find Your Perfect Dining Experience
+                        </h1>
+                        <p class="text-xl mb-8 max-w-2xl mx-auto">
+                            Discover and book the best restaurants in your city. From fine dining to casual eats, we've got you covered.
+                        </p>
+
+                        <!-- Search Form -->
+                        <div class="glass-effect rounded-xl p-6 max-w-4xl mx-auto">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input type="text" placeholder="Location, Restaurant, or Cuisine"
+                                       class="px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500">
+                                <input type="date" class="px-4 py-3 rounded-lg text-gray-900">
+                                <select class="px-4 py-3 rounded-lg text-gray-900">
+                                    <option>7:00 PM</option>
+                                    <option>7:30 PM</option>
+                                    <option>8:00 PM</option>
+                                    <option>8:30 PM</option>
+                                </select>
+                                <button class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                    Find a Table
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Restaurants -->
+            <section class="py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-8">Featured Restaurants</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        ${[
+                            { name: 'The Golden Fork', cuisine: 'Fine Dining', rating: 4.8, price: '$$$', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400' },
+                            { name: 'Sushi Paradise', cuisine: 'Japanese', rating: 4.7, price: '$$', image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=400' },
+                            { name: 'Bella Italia', cuisine: 'Italian', rating: 4.6, price: '$$', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400' },
+                            { name: 'Garden Bistro', cuisine: 'Vegetarian', rating: 4.5, price: '$', image: 'https://images.unsplash.com/photo-1547592577-f0e137c3d4c4?w=400' },
+                            { name: 'Steakhouse Prime', cuisine: 'Steakhouse', rating: 4.9, price: '$$$$', image: 'https://images.unsplash.com/photo-1558030006-450675393462?w=400' },
+                            { name: 'Ocean View', cuisine: 'Seafood', rating: 4.7, price: '$$$', image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400' }
+                        ].map(restaurant => `
+                            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale cursor-pointer">
+                                <img src="${restaurant.image}" alt="${restaurant.name}" class="w-full h-48 object-cover">
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold text-gray-900">${restaurant.name}</h3>
+                                    <p class="text-gray-600 mb-2">${restaurant.cuisine} • ${restaurant.price}</p>
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-yellow-400">
+                                            ${'★'.repeat(Math.floor(restaurant.rating))}
+                                        </div>
+                                        <span class="ml-2 text-gray-600">${restaurant.rating}</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm">6:00 PM</button>
+                                        <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm">7:30 PM</button>
+                                        <button class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm">9:00 PM</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="py-16 bg-gray-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">Why Choose DineReserve</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-search text-indigo-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Easy Discovery</h3>
+                            <p class="text-gray-600">Find the perfect restaurant with our advanced search and filters</p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-calendar-check text-indigo-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Instant Booking</h3>
+                            <p class="text-gray-600">Book your table in seconds with real-time availability</p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-gift text-indigo-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-2">Exclusive Rewards</h3>
+                            <p class="text-gray-600">Earn points and unlock special dining experiences</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            ${Footer()}
+        `;
+
+        // Login Page
+        const LoginPage = () => `
+            ${Header()}
+
+            <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                            Sign in to your account
+                        </h2>
+                        <p class="mt-2 text-center text-sm text-gray-600">
+                            Or
+                            <a href="/signup" data-link class="font-medium text-indigo-600 hover:text-indigo-500">
+                                create a new account
+                            </a>
+                        </p>
+                    </div>
+                    <form class="mt-8 space-y-6">
+                        <div class="rounded-md shadow-sm -space-y-px">
+                            <div>
+                                <label for="email" class="sr-only">Email address</label>
+                                <input id="email" name="email" type="email" required
+                                       class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                       placeholder="Email address">
+                            </div>
+                            <div>
+                                <label for="password" class="sr-only">Password</label>
+                                <input id="password" name="password" type="password" required
+                                       class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                       placeholder="Password">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="remember-me" name="remember-me" type="checkbox"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+                                    Remember me
+                                </label>
+                            </div>
+
+                            <div class="text-sm">
+                                <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+                                    Forgot your password?
+                                </a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Sign in
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // Sign Up Page
+        const SignUpPage = () => `
+            ${Header()}
+
+            <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div>
+                        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                            Create your account
+                        </h2>
+                        <p class="mt-2 text-center text-sm text-gray-600">
+                            Already have an account?
+                            <a href="/login" data-link class="font-medium text-indigo-600 hover:text-indigo-500">
+                                Sign in
+                            </a>
+                        </p>
+                    </div>
+                    <form class="mt-8 space-y-6">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="first-name" class="block text-sm font-medium text-gray-700">First name</label>
+                                    <input id="first-name" name="first-name" type="text" required
+                                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="last-name" class="block text-sm font-medium text-gray-700">Last name</label>
+                                    <input id="last-name" name="last-name" type="text" required
+                                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                                <input id="email" name="email" type="email" required
+                                       class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                                <input id="password" name="password" type="password" required
+                                       class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                            </div>
+
+                            <div>
+                                <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm password</label>
+                                <input id="confirm-password" name="confirm-password" type="password" required
+                                       class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                    class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // User Dashboard
+        const UserDashboard = () => `
+            ${Header()}
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-3xl font-bold text-gray-900 mb-8">My Dashboard</h1>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex items-center mb-6">
+                                <img src="https://ui-avatars.com/api/?name=John+Doe&background=667eea&color=fff"
+                                     alt="Profile" class="w-16 h-16 rounded-full mr-4">
+                                <div>
+                                    <h2 class="text-xl font-semibold">John Doe</h2>
+                                    <p class="text-gray-600">john.doe@email.com</p>
+                                </div>
+                            </div>
+
+                            <nav class="space-y-2">
+                                <a href="#" class="block px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                    <i class="fas fa-calendar-alt mr-2"></i> Reservations
+                                </a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-heart mr-2"></i> Favorites
+                                </a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-star mr-2"></i> Reviews
+                                </a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-gift mr-2"></i> Rewards
+                                </a>
+                                <a href="#" class="block px-4 py-2 hover:bg-gray-50 rounded-lg">
+                                    <i class="fas fa-cog mr-2"></i> Settings
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2">
+                        <!-- Upcoming Reservations -->
+                        <div class="bg-white rounded-lg shadow p-6 mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Upcoming Reservations</h3>
+
+                            <div class="space-y-4">
+                                <div class="border rounded-lg p-4 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=100"
+                                             alt="Restaurant" class="w-16 h-16 rounded-lg object-cover mr-4">
+                                        <div>
+                                            <h4 class="font-semibold">The Golden Fork</h4>
+                                            <p class="text-sm text-gray-600">Friday, Dec 15 • 7:30 PM • 2 guests</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-indigo-600 hover:text-indigo-700">Manage</button>
+                                </div>
+
+                                <div class="border rounded-lg p-4 flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <img src="https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?w=100"
+                                             alt="Restaurant" class="w-16 h-16 rounded-lg object-cover mr-4">
+                                        <div>
+                                            <h4 class="font-semibold">Sushi Paradise</h4>
+                                            <p class="text-sm text-gray-600">Saturday, Dec 16 • 8:00 PM • 4 guests</p>
+                                        </div>
+                                    </div>
+                                    <button class="text-indigo-600 hover:text-indigo-700">Manage</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-white rounded-lg shadow p-6 text-center">
+                                <div class="text-3xl font-bold text-indigo-600">24</div>
+                                <div class="text-gray-600">Total Bookings</div>
+                            </div>
+                            <div class="bg-white rounded-lg shadow p-6 text-center">
+                                <div class="text-3xl font-bold text-indigo-600">1,250</div>
+                                <div class="text-gray-600">Reward Points</div>
+                            </div>
+                            <div class="bg-white rounded-lg shadow p-6 text-center">
+                                <div class="text-3xl font-bold text-indigo-600">12</div>
+                                <div class="text-gray-600">Reviews Written</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // Restaurant Owner Dashboard
+        const RestaurantDashboard = () => `
+            ${Header()}
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-3xl font-bold text-gray-900 mb-8">Restaurant Dashboard</h1>
+
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Today's Bookings</p>
+                                <p class="text-2xl font-bold">42</p>
+                            </div>
+                            <i class="fas fa-calendar-check text-3xl text-green-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Total Guests</p>
+                                <p class="text-2xl font-bold">156</p>
+                            </div>
+                            <i class="fas fa-users text-3xl text-blue-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Revenue Today</p>
+                                <p class="text-2xl font-bold">$4,280</p>
+                            </div>
+                            <i class="fas fa-dollar-sign text-3xl text-indigo-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Avg Rating</p>
+                                <p class="text-2xl font-bold">4.8</p>
+                            </div>
+                            <i class="fas fa-star text-3xl text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Reservations -->
+                <div class="bg-white rounded-lg shadow p-6 mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Today's Reservations</h2>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-2">Time</th>
+                                    <th class="text-left py-2">Guest Name</th>
+                                    <th class="text-left py-2">Party Size</th>
+                                    <th class="text-left py-2">Table</th>
+                                    <th class="text-left py-2">Status</th>
+                                    <th class="text-left py-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="py-2">6:00 PM</td>
+                                    <td class="py-2">Sarah Johnson</td>
+                                    <td class="py-2">2</td>
+                                    <td class="py-2">Table 5</td>
+                                    <td class="py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Confirmed</span></td>
+                                    <td class="py-2">
+                                        <button class="text-indigo-600 hover:text-indigo-700 mr-2">View</button>
+                                        <button class="text-red-600 hover:text-red-700">Cancel</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="py-2">7:30 PM</td>
+                                    <td class="py-2">Mike Chen</td>
+                                    <td class="py-2">4</td>
+                                    <td class="py-2">Table 12</td>
+                                    <td class="py-2"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Pending</span></td>
+                                    <td class="py-2">
+                                        <button class="text-indigo-600 hover:text-indigo-700 mr-2">View</button>
+                                        <button class="text-red-600 hover:text-red-700">Cancel</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <button class="bg-indigo-600 text-white rounded-lg p-6 hover:bg-indigo-700 transition">
+                        <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                        <p class="font-semibold">Add Reservation</p>
+                    </button>
+
+                    <button class="bg-green-600 text-white rounded-lg p-6 hover:bg-green-700 transition">
+                        <i class="fas fa-chair text-2xl mb-2"></i>
+                        <p class="font-semibold">Manage Tables</p>
+                    </button>
+
+                    <button class="bg-purple-600 text-white rounded-lg p-6 hover:bg-purple-700 transition">
+                        <i class="fas fa-chart-line text-2xl mb-2"></i>
+                        <p class="font-semibold">View Analytics</p>
+                    </button>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // Restaurants Listing Page
+        const RestaurantsPage = () => `
+            ${Header()}
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-3xl font-bold text-gray-900 mb-8">All Restaurants</h1>
+
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <!-- Filters Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="font-semibold mb-4">Filters</h3>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Cuisine</label>
+                                    <select class="w-full border rounded-lg px-3 py-2">
+                                        <option>All Cuisines</option>
+                                        <option>Italian</option>
+                                        <option>Japanese</option>
+                                        <option>American</option>
+                                        <option>Mexican</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Price Range</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> $ (Under $15)
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> $$ ($15-$30)
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> $$$ ($31-$60)
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> $$$$ (Over $60)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Rating</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="radio" name="rating" class="mr-2"> 4+ Stars
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="rating" class="mr-2"> 3+ Stars
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="radio" name="rating" class="mr-2"> All Ratings
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restaurant Grid -->
+                    <div class="lg:col-span-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            ${[...Array(6)].map((_, i) => `
+                                <div class="bg-white rounded-lg shadow overflow-hidden hover-scale">
+                                    <img src="https://images.unsplash.com/photo-${['1414235077428-338989a2e8c0', '1579584425555-c3ce17fd4351', '1555396273-367ea4eb4db5', '1547592577-f0e137c3d4c4', '1558030006-450675393462', '1559339352-11d035aa65de'][i]}?w=400"
+                                         alt="Restaurant" class="w-full h-48 object-cover">
+                                    <div class="p-6">
+                                        <h3 class="text-xl font-semibold mb-2">Restaurant ${i + 1}</h3>
+                                        <p class="text-gray-600 mb-2">Fine Dining • $$$</p>
+                                        <div class="flex items-center mb-4">
+                                            <div class="text-yellow-400">★★★★★</div>
+                                            <span class="ml-2 text-gray-600">4.${7 + i}</span>
+                                        </div>
+                                        <a href="#" class="text-indigo-600 hover:text-indigo-700 font-medium">
+                                            View Details →
+                                        </a>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // About Page
+        const AboutPage = () => `
+            ${Header()}
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-4xl font-bold text-gray-900 text-center mb-8">About DineReserve</h1>
+
+                <div class="max-w-3xl mx-auto">
+                    <p class="text-lg text-gray-600 mb-6">
+                        DineReserve is revolutionizing the way people discover and book dining experiences.
+                        Founded in 2024, we're on a mission to connect diners with the best restaurants in their cities.
+                    </p>
+
+                    <h2 class="text-2xl font-bold mb-4">Our Mission</h2>
+                    <p class="text-gray-600 mb-6">
+                        To make dining out more accessible, enjoyable, and rewarding for everyone.
+                        We believe that great meals create lasting memories, and we're here to help you find them.
+                    </p>
+
+                    <h2 class="text-2xl font-bold mb-4">What We Offer</h2>
+                    <ul class="list-disc list-inside text-gray-600 space-y-2 mb-6">
+                        <li>Real-time restaurant availability</li>
+                        <li>Exclusive dining rewards program</li>
+                        <li>Verified customer reviews</li>
+                        <li>Special offers and promotions</li>
+                        <li>24/7 customer support</li>
+                    </ul>
+
+                    <div class="grid grid-cols-3 gap-8 mt-12">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-indigo-600">10K+</div>
+                            <div class="text-gray-600">Restaurants</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-indigo-600">1M+</div>
+                            <div class="text-gray-600">Happy Diners</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-indigo-600">50+</div>
+                            <div class="text-gray-600">Cities</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // Contact Page
+        const ContactPage = () => `
+            ${Header()}
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-4xl font-bold text-gray-900 text-center mb-8">Contact Us</h1>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Get in Touch</h2>
+                        <p class="text-gray-600 mb-6">
+                            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-indigo-600 mr-3"></i>
+                                <span>support@dinereserve.com</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-indigo-600 mr-3"></i>
+                                <span>1-800-DINE-NOW</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt text-indigo-600 mr-3"></i>
+                                <span>123 Food Street, San Francisco, CA 94105</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <form class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" class="w-full border rounded-lg px-3 py-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                                <textarea rows="4" class="w-full border rounded-lg px-3 py-2"></textarea>
+                            </div>
+                            <button class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            ${Footer()}
+        `;
+
+        // Register Routes
+        router.addRoute('/', HomePage);
+        router.addRoute('/login', LoginPage);
+        router.addRoute('/signup', SignUpPage);
+        router.addRoute('/dashboard', UserDashboard);
+        router.addRoute('/restaurant-dashboard', RestaurantDashboard);
+        router.addRoute('/restaurants', RestaurantsPage);
+        router.addRoute('/about', AboutPage);
+        router.addRoute('/contact', ContactPage);
+
+        // Initialize Router
+        window.addEventListener('popstate', () => router.render());
+        router.render();
+    </script>
+</body>
+</html>

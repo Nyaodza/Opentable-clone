@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenTable Clone - Restaurant Reservations Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .restaurant-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .restaurant-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .loading {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .sidebar-nav {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-nav.closed {
+            transform: translateX(-100%);
+        }
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Enhanced Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <!-- Top Bar -->
+            <div class="flex items-center justify-between py-3 border-b border-gray-200">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center space-x-2">
+                        <i data-lucide="utensils-crossed" class="text-red-600 w-8 h-8"></i>
+                        <h1 class="text-2xl font-bold text-red-600">OpenTable Clone</h1>
+                    </div>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="text-gray-600 hover:text-red-600 font-medium" onclick="showPage('home')">Find Tables</a>
+                        <a href="#" class="text-gray-600 hover:text-red-600 font-medium" onclick="showPage('restaurants')">Restaurants</a>
+                        <a href="#" class="text-gray-600 hover:text-red-600 font-medium" onclick="showPage('about')">About</a>
+                        <a href="#" class="text-gray-600 hover:text-red-600 font-medium" onclick="showPage('contact')">Contact</a>
+                    </nav>
+                </div>
+
+                <!-- User Actions -->
+                <div class="flex items-center space-x-4">
+                    <div id="guest-actions" class="flex items-center space-x-3">
+                        <button onclick="showPage('login')" class="text-gray-600 hover:text-red-600 font-medium px-4 py-2 rounded-md border border-gray-300 hover:border-red-600">
+                            Sign In
+                        </button>
+                        <button onclick="showPage('register')" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-medium">
+                            Sign Up
+                        </button>
+                        <div class="dropdown relative">
+                            <button class="flex items-center space-x-1 text-gray-600 hover:text-red-600 font-medium">
+                                <span>For Restaurants</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                                <a href="#" onclick="showPage('restaurant-login')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Restaurant Login</a>
+                                <a href="#" onclick="showPage('restaurant-register')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Partner With Us</a>
+                                <a href="#" onclick="showPage('restaurant-dashboard')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Restaurant Dashboard</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="user-actions" class="hidden flex items-center space-x-3">
+                        <div class="dropdown relative">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-red-600">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-medium">
+                                    <span id="user-initial">U</span>
+                                </div>
+                                <span id="user-name">User</span>
+                                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                            </button>
+                            <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                                <a href="#" onclick="showPage('profile')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Profile</a>
+                                <a href="#" onclick="showPage('reservations')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Reservations</a>
+                                <a href="#" onclick="showPage('favorites')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Favorites</a>
+                                <div class="border-t border-gray-200 my-1"></div>
+                                <a href="#" onclick="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Sign Out</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-6 h-6 text-gray-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-3 space-y-2">
+                <a href="#" onclick="showPage('home')" class="block py-2 text-gray-600 hover:text-red-600">Find Tables</a>
+                <a href="#" onclick="showPage('restaurants')" class="block py-2 text-gray-600 hover:text-red-600">Restaurants</a>
+                <a href="#" onclick="showPage('about')" class="block py-2 text-gray-600 hover:text-red-600">About</a>
+                <a href="#" onclick="showPage('contact')" class="block py-2 text-gray-600 hover:text-red-600">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="min-h-screen">
+        <!-- Landing Page -->
+        <div id="home-page" class="page">
+            <!-- Hero Section -->
+            <section class="bg-gradient-to-r from-red-600 to-red-700 text-white py-20">
+                <div class="max-w-7xl mx-auto px-4 text-center">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">Find your table for any occasion</h1>
+                    <p class="text-xl md:text-2xl mb-8 text-red-100">Book dining experiences at thousands of restaurants</p>
+
+                    <!-- Quick Search -->
+                    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <select id="hero-location" class="w-full px-3 py-3 border border-gray-300 rounded-md text-gray-700">
+                                    <option value="">Select Location</option>
+                                    <option value="downtown">Downtown</option>
+                                    <option value="midtown">Midtown</option>
+                                    <option value="uptown">Uptown</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                                <input type="date" id="hero-date" class="w-full px-3 py-3 border border-gray-300 rounded-md text-gray-700">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Party Size</label>
+                                <select id="hero-party-size" class="w-full px-3 py-3 border border-gray-300 rounded-md text-gray-700">
+                                    <option value="2">2 people</option>
+                                    <option value="3">3 people</option>
+                                    <option value="4">4 people</option>
+                                    <option value="5">5 people</option>
+                                    <option value="6">6 people</option>
+                                    <option value="8">8 people</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="heroSearch()" class="w-full bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 font-semibold text-lg">
+                                    Find Tables
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Popular Restaurants -->
+            <section class="py-20 bg-gray-50">
+                <div class="max-w-7xl mx-auto pl-12 pr-4 sm:pl-16 sm:pr-6 lg:pl-24 lg:pr-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Popular Restaurants</h2>
+                        <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">Discover top-rated dining experiences handpicked by our community</p>
+                    </div>
+
+                    <div id="popular-restaurants" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                        <!-- Restaurants will be loaded here -->
+                    </div>
+
+                    <div class="text-center mt-12">
+                        <button onclick="showPage('restaurants')" class="inline-flex items-center bg-red-600 text-white px-10 py-4 rounded-lg hover:bg-red-700 font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <span>View All Restaurants</span>
+                            <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Choose OpenTable Clone Section -->
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto pl-12 pr-4 sm:pl-16 sm:pr-6 lg:pl-24 lg:pr-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Why Choose OpenTable Clone?</h2>
+                        <p class="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto">The easiest and most reliable way to book your perfect dining experience</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-colors duration-200">
+                                <i data-lucide="search" class="w-10 h-10 text-red-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Easy Discovery</h3>
+                            <p class="text-lg text-gray-600 leading-relaxed">Browse thousands of restaurants with detailed photos, authentic reviews, and real-time availability</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-colors duration-200">
+                                <i data-lucide="calendar-check" class="w-10 h-10 text-red-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Instant Booking</h3>
+                            <p class="text-lg text-gray-600 leading-relaxed">Book your table in seconds with real-time availability and instant confirmation via email</p>
+                        </div>
+                        <div class="text-center group">
+                            <div class="w-20 h-20 mx-auto mb-6 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-200 transition-colors duration-200">
+                                <i data-lucide="star" class="w-10 h-10 text-red-600"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Exclusive Deals</h3>
+                            <p class="text-lg text-gray-600 leading-relaxed">Access special offers, earn points with every reservation, and unlock exclusive dining rewards</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Restaurants Listing Page -->
+        <div id="restaurants-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">All Restaurants</h1>
+
+                    <!-- Filters -->
+                    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                <select id="location-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="">All Locations</option>
+                                    <option value="downtown">Downtown</option>
+                                    <option value="midtown">Midtown</option>
+                                    <option value="uptown">Uptown</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine</label>
+                                <select id="cuisine-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="">All Cuisines</option>
+                                    <option value="italian">Italian</option>
+                                    <option value="japanese">Japanese</option>
+                                    <option value="american">American</option>
+                                    <option value="mexican">Mexican</option>
+                                    <option value="chinese">Chinese</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                                <select id="price-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="">Any Price</option>
+                                    <option value="$$">$$</option>
+                                    <option value="$$$">$$$</option>
+                                    <option value="$$$$">$$$$</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="searchRestaurants()" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                                    Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Restaurant Results -->
+                <div id="restaurants-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Restaurants will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Detail Page -->
+        <div id="restaurant-detail-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <!-- Back Button -->
+                <div class="mb-6">
+                    <button onclick="showPage('restaurants')" class="flex items-center text-gray-600 hover:text-red-600">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back to Restaurants
+                    </button>
+                </div>
+
+                <!-- Restaurant Header -->
+                <div id="restaurant-header" class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+                    <!-- Restaurant image and basic info will be loaded here -->
+                </div>
+
+                <!-- Restaurant Details Tabs -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8 px-6">
+                            <button onclick="showRestaurantTab('menu')" id="menu-tab" class="restaurant-tab py-4 px-1 border-b-2 border-red-500 text-red-600 font-medium">
+                                Menu
+                            </button>
+                            <button onclick="showRestaurantTab('info')" id="info-tab" class="restaurant-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                                Information
+                            </button>
+                            <button onclick="showRestaurantTab('reviews')" id="reviews-tab" class="restaurant-tab py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                                Reviews
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Menu Tab Content -->
+                    <div id="menu-content" class="restaurant-tab-content p-6">
+                        <div id="menu-categories" class="mb-6">
+                            <!-- Menu categories will be loaded here -->
+                        </div>
+                        <div id="menu-items" class="space-y-6">
+                            <!-- Menu items will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Information Tab Content -->
+                    <div id="info-content" class="restaurant-tab-content hidden p-6">
+                        <div id="restaurant-info" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Restaurant information will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab Content -->
+                    <div id="reviews-content" class="restaurant-tab-content hidden p-6">
+                        <div id="restaurant-reviews" class="space-y-4">
+                            <!-- Reviews will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reservation Section -->
+                <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Ready to make a reservation?</h3>
+                            <p class="text-gray-600">Book your table at this restaurant</p>
+                        </div>
+                        <button id="detail-reserve-btn" onclick="openReservationModal(currentRestaurantId, currentRestaurantName)"
+                                class="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 font-semibold">
+                            Make Reservation
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="login-page" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-gray-900">Sign in to your account</h2>
+                        <p class="mt-2 text-gray-600">Or <a href="#" onclick="showPage('register')" class="text-red-600 hover:text-red-500">create a new account</a></p>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleLogin(event)">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
+                            <input id="email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input id="password" name="password" type="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">Remember me</label>
+                            </div>
+                            <div class="text-sm">
+                                <a href="#" class="text-red-600 hover:text-red-500">Forgot your password?</a>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Sign in
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="register-page" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-gray-900">Create your account</h2>
+                        <p class="mt-2 text-gray-600">Or <a href="#" onclick="showPage('login')" class="text-red-600 hover:text-red-500">sign in to your account</a></p>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleRegister(event)">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="first-name" class="block text-sm font-medium text-gray-700">First name</label>
+                                <input id="first-name" name="first-name" type="text" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                            </div>
+                            <div>
+                                <label for="last-name" class="block text-sm font-medium text-gray-700">Last name</label>
+                                <input id="last-name" name="last-name" type="text" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="reg-email" class="block text-sm font-medium text-gray-700">Email address</label>
+                            <input id="reg-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone number</label>
+                            <input id="phone" name="phone" type="tel" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <label for="reg-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input id="reg-password" name="password" type="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm password</label>
+                            <input id="confirm-password" name="confirm-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div class="flex items-center">
+                            <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                            <label for="terms" class="ml-2 block text-sm text-gray-900">
+                                I agree to the <a href="#" class="text-red-600 hover:text-red-500">Terms of Service</a> and <a href="#" class="text-red-600 hover:text-red-500">Privacy Policy</a>
+                            </label>
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Create account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Dashboard -->
+        <div id="customer-dashboard-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">My Dashboard</h1>
+                    <p class="text-gray-600">Manage your reservations and dining preferences</p>
+                </div>
+
+                <!-- Dashboard Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="calendar" class="w-6 h-6 text-red-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Reservations</p>
+                                <p class="text-2xl font-bold text-gray-900" id="total-reservations">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Confirmed</p>
+                                <p class="text-2xl font-bold text-gray-900" id="confirmed-reservations">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="heart" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Favorite Restaurants</p>
+                                <p class="text-2xl font-bold text-gray-900">3</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="star" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Loyalty Points</p>
+                                <p class="text-2xl font-bold text-gray-900">1,250</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Reservations -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">Recent Reservations</h2>
+                        <button onclick="showPage('reservations')" class="text-red-600 hover:text-red-700 font-medium">View All</button>
+                    </div>
+                    <div id="dashboard-reservations">
+                        <!-- Reservations will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Book</h3>
+                        <p class="text-gray-600 mb-4">Book a table at your favorite restaurant</p>
+                        <button onclick="showPage('restaurants')" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                            Find Restaurants
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4">Profile Settings</h3>
+                        <p class="text-gray-600 mb-4">Update your dining preferences and contact info</p>
+                        <button onclick="showPage('profile')" class="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Reservations Page -->
+        <div id="reservations-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">My Reservations</h1>
+                    <p class="text-gray-600">View and manage your restaurant bookings</p>
+                </div>
+
+                <!-- Reservation Filters -->
+                <div class="bg-white rounded-lg shadow p-6 mb-8">
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="filterReservations('all')" class="px-4 py-2 rounded-md bg-red-600 text-white font-medium filter-btn active">
+                            All Reservations
+                        </button>
+                        <button onclick="filterReservations('upcoming')" class="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-medium filter-btn">
+                            Upcoming
+                        </button>
+                        <button onclick="filterReservations('past')" class="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-medium filter-btn">
+                            Past
+                        </button>
+                        <button onclick="filterReservations('cancelled')" class="px-4 py-2 rounded-md bg-gray-200 text-gray-700 font-medium filter-btn">
+                            Cancelled
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Reservations List -->
+                <div id="reservations-container" class="space-y-4">
+                    <!-- Reservations will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <!-- Hero Section -->
+                <div class="text-center mb-16">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-6">About OpenTable Clone</h1>
+                    <p class="text-xl text-gray-600 max-w-3xl mx-auto">We're passionate about connecting diners with incredible dining experiences. Our platform makes it easy to discover, book, and enjoy restaurants around the world.</p>
+                </div>
+
+                <!-- Mission Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+                        <p class="text-gray-600 mb-4">We believe that great dining experiences bring people together and create lasting memories. Our mission is to make it effortless for diners to discover and book the perfect table for any occasion.</p>
+                        <p class="text-gray-600">From intimate date nights to large celebrations, we help millions of diners find their ideal restaurant experience every day.</p>
+                    </div>
+                    <div class="bg-red-50 p-8 rounded-lg">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">Why Choose Us?</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i data-lucide="check" class="w-5 h-5 text-red-600 mt-0.5 mr-3"></i>
+                                <span class="text-gray-700">Instant confirmations at top restaurants</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check" class="w-5 h-5 text-red-600 mt-0.5 mr-3"></i>
+                                <span class="text-gray-700">Real-time availability and easy booking</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check" class="w-5 h-5 text-red-600 mt-0.5 mr-3"></i>
+                                <span class="text-gray-700">Exclusive dining experiences and offers</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check" class="w-5 h-5 text-red-600 mt-0.5 mr-3"></i>
+                                <span class="text-gray-700">24/7 customer support</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="bg-gray-900 text-white rounded-lg p-12 mb-16">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                        <div>
+                            <div class="text-3xl font-bold text-red-400 mb-2">50K+</div>
+                            <div class="text-gray-300">Restaurants</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-red-400 mb-2">100M+</div>
+                            <div class="text-gray-300">Reservations</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-red-400 mb-2">180+</div>
+                            <div class="text-gray-300">Countries</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-red-400 mb-2">25M+</div>
+                            <div class="text-gray-300">Happy Diners</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Section -->
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-12">Our Team</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">JD</div>
+                            <h3 class="text-lg font-semibold text-gray-900">John Doe</h3>
+                            <p class="text-gray-600">CEO & Founder</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">JS</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Jane Smith</h3>
+                            <p class="text-gray-600">Head of Product</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">MJ</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Mike Johnson</h3>
+                            <p class="text-gray-600">Head of Engineering</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="contact-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-16">
+                <div class="text-center mb-16">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-6">Contact Us</h1>
+                    <p class="text-xl text-gray-600">Get in touch with our team. We're here to help!</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Contact Form -->
+                    <div class="bg-white p-8 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
+                        <form class="space-y-6" onsubmit="handleContactForm(event)">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First name</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last name</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                    <option>General Inquiry</option>
+                                    <option>Reservation Issue</option>
+                                    <option>Restaurant Partnership</option>
+                                    <option>Technical Support</option>
+                                    <option>Feedback</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                <textarea rows="5" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 font-medium">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="space-y-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-6">Get in touch</h2>
+                            <div class="space-y-6">
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i data-lucide="map-pin" class="w-6 h-6 text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Address</h3>
+                                        <p class="text-gray-600">123 Restaurant Ave<br>Food District, NY 10001</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i data-lucide="phone" class="w-6 h-6 text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Phone</h3>
+                                        <p class="text-gray-600">+1 (555) 123-4567</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                                        <i data-lucide="mail" class="w-6 h-6 text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">Email</h3>
+                                        <p class="text-gray-600">support@opentableclone.com</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Business Hours</h3>
+                            <div class="space-y-2 text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Monday - Friday</span>
+                                    <span>9:00 AM - 6:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Saturday</span>
+                                    <span>10:00 AM - 4:00 PM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Sunday</span>
+                                    <span>Closed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Follow Us</h3>
+                            <div class="flex space-x-4">
+                                <a href="#" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
+                                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
+                                    <i data-lucide="twitter" class="w-5 h-5"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
+                                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-colors">
+                                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-page" class="page hidden">
+            <div class="max-w-4xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">My Profile</h1>
+                    <p class="text-gray-600">Manage your account settings and dining preferences</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Profile Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="text-center">
+                                <div class="w-24 h-24 bg-red-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
+                                    <span id="profile-initial">U</span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900" id="profile-name">User Name</h3>
+                                <p class="text-gray-600" id="profile-email">user@example.com</p>
+                                <p class="text-sm text-gray-500 mt-2">Member since 2024</p>
+                            </div>
+                            <div class="mt-6 space-y-2">
+                                <button onclick="showProfileSection('personal')" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 profile-tab active">Personal Info</button>
+                                <button onclick="showProfileSection('preferences')" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 profile-tab">Dining Preferences</button>
+                                <button onclick="showProfileSection('security')" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 profile-tab">Security</button>
+                                <button onclick="showProfileSection('notifications')" class="w-full text-left px-4 py-2 rounded-md hover:bg-gray-100 profile-tab">Notifications</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Content -->
+                    <div class="lg:col-span-2">
+                        <!-- Personal Info Section -->
+                        <div id="personal-section" class="profile-section bg-white rounded-lg shadow p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Personal Information</h2>
+                            <form class="space-y-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">First name</label>
+                                        <input type="text" value="John" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Last name</label>
+                                        <input type="text" value="Doe" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" value="john.doe@example.com" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                    <input type="tel" value="+1 (555) 123-4567" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                    <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Dining Preferences Section -->
+                        <div id="preferences-section" class="profile-section bg-white rounded-lg shadow p-6 hidden">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Dining Preferences</h2>
+                            <form class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Favorite Cuisines</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked> Italian
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Japanese
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2" checked> American
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Mexican
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Dietary Restrictions</label>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Vegetarian
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Vegan
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Gluten-free
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2"> Dairy-free
+                                        </label>
+                                    </div>
+                                </div>
+                                <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+                                    Save Preferences
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Security Section -->
+                        <div id="security-section" class="profile-section bg-white rounded-lg shadow p-6 hidden">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Security Settings</h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
+                                    <form class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                        </div>
+                                        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+                                            Update Password
+                                        </button>
+                                    </form>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
+                                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-md">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Two-factor authentication</p>
+                                            <p class="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                                        </div>
+                                        <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm">
+                                            Enable
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Section -->
+                        <div id="notifications-section" class="profile-section bg-white rounded-lg shadow p-6 hidden">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Notification Preferences</h2>
+                            <div class="space-y-6">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Reservation confirmations</span>
+                                            <input type="checkbox" checked class="toggle">
+                                        </label>
+                                        <label class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Special offers and promotions</span>
+                                            <input type="checkbox" checked class="toggle">
+                                        </label>
+                                        <label class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Restaurant recommendations</span>
+                                            <input type="checkbox" class="toggle">
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-4">SMS Notifications</h3>
+                                    <div class="space-y-3">
+                                        <label class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Reservation reminders</span>
+                                            <input type="checkbox" checked class="toggle">
+                                        </label>
+                                        <label class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-700">Last-minute availability</span>
+                                            <input type="checkbox" class="toggle">
+                                        </label>
+                                    </div>
+                                </div>
+                                <button class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+                                    Save Preferences
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Page -->
+        <div id="favorites-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">My Favorite Restaurants</h1>
+                    <p class="text-gray-600">Quick access to your most loved dining spots</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Sample favorite restaurants -->
+                    <div class="restaurant-card bg-white rounded-lg shadow-md overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400" alt="The Great Italian" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">The Great Italian</h3>
+                            <p class="text-gray-600 mb-2">Italian • Downtown</p>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                    <span class="ml-1 text-gray-700">4.5</span>
+                                </div>
+                                <span class="text-gray-700 font-medium">$$$</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="openReservationModal(1, 'The Great Italian')" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                                    Reserve
+                                </button>
+                                <button class="w-10 h-10 border border-red-600 text-red-600 rounded-md hover:bg-red-50 flex items-center justify-center">
+                                    <i data-lucide="heart-off" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Login Page -->
+        <div id="restaurant-login-page" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-md w-full space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-bold text-gray-900">Restaurant Partner Login</h2>
+                        <p class="mt-2 text-gray-600">Access your restaurant dashboard</p>
+                    </div>
+                    <form class="mt-8 space-y-6" onsubmit="handleRestaurantLogin(event)">
+                        <div>
+                            <label for="restaurant-email" class="block text-sm font-medium text-gray-700">Restaurant Email</label>
+                            <input id="restaurant-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <label for="restaurant-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input id="restaurant-password" name="password" type="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500">
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                Sign in to Dashboard
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600">
+                                New restaurant partner?
+                                <a href="#" onclick="showPage('restaurant-register')" class="text-red-600 hover:text-red-500">Join our platform</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Registration Page -->
+        <div id="restaurant-register-page" class="page hidden">
+            <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-2xl mx-auto">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900">Partner With Us</h2>
+                        <p class="mt-2 text-gray-600">Join thousands of restaurants on our platform</p>
+                    </div>
+                    <div class="bg-white shadow-lg rounded-lg p-8">
+                        <form class="space-y-6" onsubmit="handleRestaurantRegister(event)">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Restaurant Name</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Cuisine Type</label>
+                                    <select required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                        <option value="">Select Cuisine</option>
+                                        <option value="italian">Italian</option>
+                                        <option value="japanese">Japanese</option>
+                                        <option value="american">American</option>
+                                        <option value="mexican">Mexican</option>
+                                        <option value="chinese">Chinese</option>
+                                        <option value="indian">Indian</option>
+                                        <option value="french">French</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                    <input type="tel" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500" placeholder="Tell us about your restaurant..."></textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Seating Capacity</label>
+                                    <input type="number" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+                                    <select required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-red-500 focus:border-red-500">
+                                        <option value="">Select Price Range</option>
+                                        <option value="$$">$$ - Moderate</option>
+                                        <option value="$$$">$$$ - Upscale</option>
+                                        <option value="$$$$">$$$$ - Fine Dining</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" required class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <label class="ml-2 block text-sm text-gray-900">
+                                    I agree to the <a href="#" class="text-red-600 hover:text-red-500">Terms of Service</a> and <a href="#" class="text-red-600 hover:text-red-500">Restaurant Partner Agreement</a>
+                                </label>
+                            </div>
+                            <button type="submit" class="w-full bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 font-medium">
+                                Submit Application
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Restaurant Dashboard -->
+        <div id="restaurant-dashboard-page" class="page hidden">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
+                    <p class="text-gray-600">Manage your restaurant and reservations</p>
+                </div>
+
+                <!-- Restaurant Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="calendar-days" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Today's Reservations</p>
+                                <p class="text-2xl font-bold text-gray-900">24</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="users" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Guests</p>
+                                <p class="text-2xl font-bold text-gray-900">86</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="star" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Average Rating</p>
+                                <p class="text-2xl font-bold text-gray-900">4.8</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i data-lucide="trending-up" class="w-6 h-6 text-red-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Monthly Growth</p>
+                                <p class="text-2xl font-bold text-gray-900">+12%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Manage Tables</h3>
+                        <p class="text-gray-600 mb-4">Set availability and table configurations</p>
+                        <button class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                            Table Management
+                        </button>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">View Reviews</h3>
+                        <p class="text-gray-600 mb-4">Monitor customer feedback and ratings</p>
+                        <button class="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                            Customer Reviews
+                        </button>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Analytics</h3>
+                        <p class="text-gray-600 mb-4">Track performance and insights</p>
+                        <button class="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700">
+                            View Analytics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Today's Reservations -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Today's Reservations</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Party Size</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">6:00 PM</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Smith</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">4</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Confirmed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                        <button class="text-red-600 hover:text-red-900">Cancel</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">7:30 PM</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Sarah Johnson</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-green-600 hover:text-green-900 mr-3">Confirm</button>
+                                        <button class="text-red-600 hover:text-red-900">Decline</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i data-lucide="utensils-crossed" class="text-red-600 w-8 h-8"></i>
+                        <h3 class="text-xl font-bold">OpenTable Clone</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">The world's leading restaurant reservation platform, connecting diners with amazing dining experiences.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- For Diners -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Diners</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="showPage('restaurants')" class="text-gray-400 hover:text-white">Browse Restaurants</a></li>
+                        <li><a href="#" onclick="showPage('register')" class="text-gray-400 hover:text-white">Sign Up</a></li>
+                        <li><a href="#" onclick="showPage('reservations')" class="text-gray-400 hover:text-white">My Reservations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Mobile App</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Gift Cards</a></li>
+                    </ul>
+                </div>
+
+                <!-- For Restaurants -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">For Restaurants</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="showPage('restaurant-register')" class="text-gray-400 hover:text-white">Partner With Us</a></li>
+                        <li><a href="#" onclick="showPage('restaurant-dashboard')" class="text-gray-400 hover:text-white">Restaurant Dashboard</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Table Management</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Analytics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Support</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="showPage('contact')" class="text-gray-400 hover:text-white">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" onclick="showPage('about')" class="text-gray-400 hover:text-white">About Us</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-8 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400">&copy; 2025 OpenTable Clone. All rights reserved.</p>
+                    <div class="flex space-x-6 mt-4 md:mt-0">
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Terms</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Cookies</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Accessibility</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Reservation Modal -->
+    <div id="reservation-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">Make a Reservation</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div id="reservation-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Restaurant</label>
+                        <p id="restaurant-name" class="text-gray-900 font-medium"></p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input type="date" id="reservation-date" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                            <select id="reservation-time" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                <option value="6:00 PM">6:00 PM</option>
+                                <option value="6:30 PM">6:30 PM</option>
+                                <option value="7:00 PM">7:00 PM</option>
+                                <option value="7:30 PM">7:30 PM</option>
+                                <option value="8:00 PM">8:00 PM</option>
+                                <option value="8:30 PM">8:30 PM</option>
+                                <option value="9:00 PM">9:00 PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Party Size</label>
+                        <select id="party-size" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="1">1 person</option>
+                            <option value="2">2 people</option>
+                            <option value="3">3 people</option>
+                            <option value="4">4 people</option>
+                            <option value="5">5 people</option>
+                            <option value="6">6 people</option>
+                            <option value="7">7 people</option>
+                            <option value="8">8 people</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                        <input type="text" id="customer-name" placeholder="Your full name" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input type="email" id="customer-email" placeholder="your@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+
+                    <button onclick="makeReservation()" class="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                        Complete Reservation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        let currentRestaurant = null;
+        let currentUser = null;
+        let currentRestaurantId = null;
+        let currentRestaurantName = null;
+        let currentRestaurantMenu = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            loadRestaurants();
+            setMinDate();
+            showPage('home');
+
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserInterface();
+            }
+        });
+
+        function setMinDate() {
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            const today = new Date().toISOString().split('T')[0];
+            dateInputs.forEach(input => {
+                input.min = today;
+                if (!input.value) input.value = today;
+            });
+        }
+
+        // Page Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+
+            // Show selected page
+            const targetPage = document.getElementById(pageName + '-page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+
+                // Load page-specific data
+                switch(pageName) {
+                    case 'restaurants':
+                        loadRestaurants();
+                        break;
+                    case 'reservations':
+                        loadReservations();
+                        break;
+                    case 'customer-dashboard':
+                        loadDashboardData();
+                        break;
+                }
+            }
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Authentication
+        function handleLogin(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const email = formData.get('email');
+            const password = formData.get('password');
+
+            // Simulate login
+            currentUser = {
+                id: 1,
+                name: email.split('@')[0],
+                email: email,
+                type: 'customer'
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserInterface();
+            showPage('customer-dashboard');
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const firstName = formData.get('first-name');
+            const lastName = formData.get('last-name');
+            const email = formData.get('email');
+
+            // Simulate registration
+            currentUser = {
+                id: Date.now(),
+                name: firstName + ' ' + lastName,
+                email: email,
+                type: 'customer'
+            };
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserInterface();
+            showPage('customer-dashboard');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUserInterface();
+            showPage('home');
+        }
+
+        function updateUserInterface() {
+            const guestActions = document.getElementById('guest-actions');
+            const userActions = document.getElementById('user-actions');
+
+            if (currentUser) {
+                guestActions.classList.add('hidden');
+                userActions.classList.remove('hidden');
+                document.getElementById('user-name').textContent = currentUser.name;
+                document.getElementById('user-initial').textContent = currentUser.name.charAt(0).toUpperCase();
+            } else {
+                guestActions.classList.remove('hidden');
+                userActions.classList.add('hidden');
+            }
+        }
+
+        // Restaurant functions
+        async function loadRestaurants() {
+            try {
+                const response = await fetch(`${API_BASE}/restaurants`);
+                const data = await response.json();
+                displayRestaurants(data.restaurants);
+                displayPopularRestaurants(data.restaurants);
+            } catch (error) {
+                console.error('Error loading restaurants:', error);
+                showError('Failed to load restaurants');
+            }
+        }
+
+        async function searchRestaurants() {
+            const location = document.getElementById('location-filter').value;
+            const cuisine = document.getElementById('cuisine-filter').value;
+            const price = document.getElementById('price-filter').value;
+
+            const params = new URLSearchParams();
+            if (location) params.append('location', location);
+            if (cuisine) params.append('cuisine', cuisine);
+            if (price) params.append('price', price);
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurants?${params}`);
+                const data = await response.json();
+                displayRestaurants(data.restaurants);
+            } catch (error) {
+                console.error('Error searching restaurants:', error);
+                showError('Failed to search restaurants');
+            }
+        }
+
+        function heroSearch() {
+            const location = document.getElementById('hero-location').value;
+            if (location) {
+                document.getElementById('location-filter').value = location;
+            }
+            showPage('restaurants');
+            searchRestaurants();
+        }
+
+        function displayRestaurants(restaurants) {
+            const container = document.getElementById('restaurants-container');
+            if (!container) return;
+
+            if (restaurants.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">No restaurants found</div>';
+                return;
+            }
+
+            container.innerHTML = restaurants.map(restaurant => `
+                <div class="restaurant-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${restaurant.name}</h3>
+                        <p class="text-gray-600 mb-2">${restaurant.cuisine} • ${restaurant.location}</p>
+                        <p class="text-gray-600 mb-3">${restaurant.description || ''}</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <span class="ml-1 text-gray-700">${restaurant.rating}</span>
+                            </div>
+                            <span class="text-gray-700 font-medium">${restaurant.priceRange}</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="viewRestaurantDetails(${restaurant.id})"
+                                    class="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded-md hover:bg-gray-200 transition-colors text-sm">
+                                View Details
+                            </button>
+                            <button onclick="openReservationModal(${restaurant.id}, '${restaurant.name}')"
+                                    class="flex-1 bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition-colors text-sm">
+                                Reserve
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        function displayPopularRestaurants(restaurants) {
+            const container = document.getElementById('popular-restaurants');
+            if (!container) return;
+
+            // Show only first 8 restaurants for popular section
+            const popularRestaurants = restaurants.slice(0, 8);
+
+            if (popularRestaurants.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-8">No restaurants found</div>';
+                return;
+            }
+
+            container.innerHTML = popularRestaurants.map(restaurant => `
+                <div class="restaurant-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">${restaurant.name}</h3>
+                        <p class="text-gray-600 mb-2">${restaurant.cuisine} • ${restaurant.location}</p>
+                        <p class="text-gray-600 mb-3">${restaurant.description || ''}</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <span class="ml-1 text-gray-700">${restaurant.rating}</span>
+                            </div>
+                            <span class="text-gray-700 font-medium">${restaurant.priceRange}</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="viewRestaurantDetails(${restaurant.id})" class="flex-1 bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors">
+                                View Details
+                            </button>
+                            <button onclick="openReservationModal(${restaurant.id}, '${restaurant.name}')" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                                Reserve Table
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        // Reservation functions
+        function openReservationModal(restaurantId, restaurantName) {
+            if (!currentUser) {
+                showPage('login');
+                return;
+            }
+
+            currentRestaurant = { id: restaurantId, name: restaurantName };
+            document.getElementById('restaurant-name').textContent = restaurantName;
+            document.getElementById('reservation-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('reservation-modal').classList.add('hidden');
+            currentRestaurant = null;
+        }
+
+        async function makeReservation() {
+            if (!currentRestaurant || !currentUser) return;
+
+            const reservation = {
+                restaurantId: currentRestaurant.id,
+                date: document.getElementById('reservation-date').value,
+                time: document.getElementById('reservation-time').value,
+                partySize: parseInt(document.getElementById('party-size').value),
+                customerInfo: {
+                    name: document.getElementById('customer-name').value || currentUser.name,
+                    email: document.getElementById('customer-email').value || currentUser.email
+                }
+            };
+
+            if (!reservation.customerInfo.name || !reservation.customerInfo.email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/reservations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reservation)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`Reservation confirmed! Confirmation number: ${data.reservation.confirmationNumber}`);
+                    closeModal();
+                    // Clear form
+                    document.getElementById('customer-name').value = '';
+                    document.getElementById('customer-email').value = '';
+
+                    // Refresh reservations if on reservations page
+                    if (!document.getElementById('reservations-page').classList.contains('hidden')) {
+                        loadReservations();
+                    }
+                } else {
+                    alert('Failed to make reservation');
+                }
+            } catch (error) {
+                console.error('Error making reservation:', error);
+                alert('Failed to make reservation');
+            }
+        }
+
+        async function loadReservations() {
+            try {
+                const response = await fetch(`${API_BASE}/reservations`);
+                const data = await response.json();
+                displayReservations(data.reservations);
+                updateDashboardStats(data.reservations);
+            } catch (error) {
+                console.error('Error loading reservations:', error);
+                showError('Failed to load reservations');
+            }
+        }
+
+        function displayReservations(reservations) {
+            const container = document.getElementById('reservations-container');
+            if (!container) return;
+
+            if (reservations.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i data-lucide="calendar-x" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No reservations found</h3>
+                        <p class="text-gray-500 mb-6">Start exploring restaurants and make your first reservation!</p>
+                        <button onclick="showPage('restaurants')" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+                            Browse Restaurants
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = reservations.map(reservation => `
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${reservation.customerInfo?.name || 'N/A'}</h3>
+                            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div>
+                                    <p><strong>Date:</strong> ${reservation.date}</p>
+                                    <p><strong>Time:</strong> ${reservation.time}</p>
+                                </div>
+                                <div>
+                                    <p><strong>Party Size:</strong> ${reservation.partySize} people</p>
+                                    ${reservation.confirmationNumber ? `<p><strong>Confirmation:</strong> ${reservation.confirmationNumber}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end space-y-2">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium ${reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${reservation.status}
+                            </span>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Modify</button>
+                                <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterReservations(filter) {
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-red-600', 'text-white');
+
+            // Filter logic would go here
+            loadReservations();
+        }
+
+        function loadDashboardData() {
+            loadReservations();
+        }
+
+        function updateDashboardStats(reservations) {
+            const totalElement = document.getElementById('total-reservations');
+            const confirmedElement = document.getElementById('confirmed-reservations');
+
+            if (totalElement) {
+                totalElement.textContent = reservations.length;
+            }
+
+            if (confirmedElement) {
+                const confirmed = reservations.filter(r => r.status === 'confirmed').length;
+                confirmedElement.textContent = confirmed;
+            }
+
+            // Update dashboard reservations
+            const dashboardContainer = document.getElementById('dashboard-reservations');
+            if (dashboardContainer) {
+                const recentReservations = reservations.slice(0, 3);
+                if (recentReservations.length === 0) {
+                    dashboardContainer.innerHTML = '<p class="text-gray-500">No recent reservations</p>';
+                } else {
+                    dashboardContainer.innerHTML = recentReservations.map(reservation => `
+                        <div class="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0">
+                            <div>
+                                <p class="font-medium text-gray-900">${reservation.customerInfo?.name || 'N/A'}</p>
+                                <p class="text-sm text-gray-500">${reservation.date} at ${reservation.time}</p>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${reservation.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${reservation.status}
+                            </span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function showError(message) {
+            alert(message);
+        }
+
+        // Restaurant Detail Functions
+        async function viewRestaurantDetails(restaurantId) {
+            try {
+                currentRestaurantId = restaurantId;
+
+                // Load restaurant details
+                const [restaurantResponse, menuResponse] = await Promise.all([
+                    fetch(`${API_BASE}/restaurants/${restaurantId}`),
+                    fetch(`${API_BASE}/restaurants/${restaurantId}/menu`)
+                ]);
+
+                const restaurant = await restaurantResponse.json();
+                const menuData = await menuResponse.json();
+
+                currentRestaurantName = restaurant.name;
+                currentRestaurantMenu = menuData.menu || [];
+
+                displayRestaurantHeader(restaurant);
+                displayRestaurantMenu(currentRestaurantMenu);
+                displayRestaurantInfo(restaurant);
+
+                showPage('restaurant-detail');
+            } catch (error) {
+                console.error('Error loading restaurant details:', error);
+                alert('Failed to load restaurant details');
+            }
+        }
+
+        function displayRestaurantHeader(restaurant) {
+            const headerContainer = document.getElementById('restaurant-header');
+            headerContainer.innerHTML = `
+                <div class="relative">
+                    <img src="${restaurant.image}" alt="${restaurant.name}" class="w-full h-64 object-cover">
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+                        <div class="text-white">
+                            <h1 class="text-3xl font-bold mb-2">${restaurant.name}</h1>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span>${restaurant.cuisine}</span>
+                                <span>•</span>
+                                <span>${restaurant.location}</span>
+                                <span>•</span>
+                                <span class="flex items-center">
+                                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current mr-1"></i>
+                                    ${restaurant.rating}
+                                </span>
+                                <span>•</span>
+                                <span>${restaurant.priceRange}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 text-lg">${restaurant.description}</p>
+                    ${restaurant.features ? `
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${restaurant.features.map(feature => `
+                                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">${feature}</span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function displayRestaurantMenu(menu) {
+            const menuContainer = document.getElementById('menu-items');
+            const categoriesContainer = document.getElementById('menu-categories');
+
+            if (!menu || menu.length === 0) {
+                menuContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Menu not available at this time.</p>
+                        <p class="text-gray-400 text-sm mt-2">Please contact the restaurant for menu information.</p>
+                    </div>
+                `;
+                categoriesContainer.innerHTML = '';
+                return;
+            }
+
+            // Group menu items by category
+            const categories = [...new Set(menu.map(item => item.category))];
+
+            // Display category filter buttons
+            categoriesContainer.innerHTML = `
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterMenuCategory('all')" class="menu-category-btn active bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
+                        All Items
+                    </button>
+                    ${categories.map(category => `
+                        <button onclick="filterMenuCategory('${category}')" class="menu-category-btn bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200">
+                            ${category}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            // Display all menu items grouped by category
+            const menuByCategory = categories.reduce((acc, category) => {
+                acc[category] = menu.filter(item => item.category === category);
+                return acc;
+            }, {});
+
+            menuContainer.innerHTML = categories.map(category => `
+                <div class="menu-category" data-category="${category}">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4 border-b border-gray-200 pb-2">${category}</h3>
+                    <div class="space-y-4">
+                        ${menuByCategory[category].map(item => `
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900">${item.name}</h4>
+                                    <p class="text-gray-600 text-sm mt-1">${item.description}</p>
+                                </div>
+                                <div class="ml-4 text-right">
+                                    <span class="font-semibold text-gray-900">$${item.price}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterMenuCategory(category) {
+            // Update active button
+            document.querySelectorAll('.menu-category-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-red-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            event.target.classList.add('active', 'bg-red-600', 'text-white');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+
+            // Show/hide menu categories
+            document.querySelectorAll('.menu-category').forEach(categoryDiv => {
+                if (category === 'all' || categoryDiv.dataset.category === category) {
+                    categoryDiv.style.display = 'block';
+                } else {
+                    categoryDiv.style.display = 'none';
+                }
+            });
+        }
+
+        function displayRestaurantInfo(restaurant) {
+            const infoContainer = document.getElementById('restaurant-info');
+            infoContainer.innerHTML = `
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <i data-lucide="phone" class="w-4 h-4 text-gray-400 mr-3"></i>
+                            <span>${restaurant.phone}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-gray-400 mr-3"></i>
+                            <span>${restaurant.address}</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Hours</h3>
+                    <p class="text-gray-600">${restaurant.hours}</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function showRestaurantTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.restaurant-tab').forEach(tab => {
+                tab.classList.remove('border-red-500', 'text-red-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            document.getElementById(tabName + '-tab').classList.add('border-red-500', 'text-red-600');
+            document.getElementById(tabName + '-tab').classList.remove('border-transparent', 'text-gray-500');
+
+            // Update tab content
+            document.querySelectorAll('.restaurant-tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+
+            // Load content if needed
+            if (tabName === 'reviews') {
+                loadRestaurantReviews(currentRestaurantId);
+            }
+        }
+
+        async function loadRestaurantReviews(restaurantId) {
+            try {
+                const response = await fetch(`${API_BASE}/restaurants/${restaurantId}/reviews`);
+                const data = await response.json();
+
+                const reviewsContainer = document.getElementById('restaurant-reviews');
+
+                if (!data.reviews || data.reviews.length === 0) {
+                    reviewsContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No reviews yet.</p>
+                            <p class="text-gray-400 text-sm mt-2">Be the first to leave a review!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                reviewsContainer.innerHTML = data.reviews.map(review => `
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+                                    ${review.customerName ? review.customerName.charAt(0).toUpperCase() : 'A'}
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-semibold text-gray-900">${review.customerName || 'Anonymous'}</p>
+                                    <div class="flex items-center">
+                                        ${Array.from({length: 5}, (_, i) => `
+                                            <i data-lucide="star" class="w-4 h-4 ${i < (review.rating || 5) ? 'text-yellow-400 fill-current' : 'text-gray-300'}"></i>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-500">${new Date(review.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-gray-600">${review.comment || 'Great experience!'}</p>
+                    </div>
+                `).join('');
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                document.getElementById('restaurant-reviews').innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Unable to load reviews at this time.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('reservation-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

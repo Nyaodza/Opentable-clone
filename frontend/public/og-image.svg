@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626"/>
+      <stop offset="100%" style="stop-color:#991b1b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g fill="white" transform="translate(450, 200)">
+    <!-- Fork -->
+    <path d="M60 40 L60 160 Q60 200 80 220 L80 312 Q80 320 88 320 L112 320 Q120 320 120 312 L120 220 Q140 200 140 160 L140 40 Q140 32 132 32 L124 32 Q116 32 116 40 L116 120 L108 120 L108 40 Q108 32 100 32 L100 32 Q92 32 92 40 L92 120 L84 120 L84 40 Q84 32 76 32 L68 32 Q60 32 60 40Z" transform="scale(0.8)"/>
+    <!-- Knife -->
+    <path d="M180 32 Q172 32 172 40 L172 312 Q172 320 180 320 L204 320 Q212 320 212 312 L212 200 L240 200 Q280 200 280 140 L280 100 Q280 32 220 32 L180 32Z M212 160 L212 72 L220 72 Q240 72 240 100 L240 140 Q240 160 220 160 L212 160Z" transform="scale(0.8)"/>
+  </g>
+  <text x="600" y="450" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="bold">OpenTable Clone</text>
+  <text x="600" y="520" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" opacity="0.9">Find and book restaurant reservations instantly</text>
+</svg>
+
+

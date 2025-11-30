@@ -1,0 +1,25 @@
+export const commonTypeDefs = `#graphql
+  scalar Date
+  scalar DateTime
+  scalar JSONObject
+  scalar Upload
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+  }
+
+  type Query {
+    _empty: String
+  }
+
+  type Mutation {
+    _empty: String
+  }
+
+  type Subscription {
+    _empty: String
+  }
+`;

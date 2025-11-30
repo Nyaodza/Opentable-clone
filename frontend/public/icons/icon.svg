@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="80" fill="url(#grad)"/>
+  <g fill="white">
+    <!-- Fork -->
+    <path d="M160 120 L160 240 Q160 280 180 300 L180 392 Q180 400 188 400 L212 400 Q220 400 220 392 L220 300 Q240 280 240 240 L240 120 Q240 112 232 112 L224 112 Q216 112 216 120 L216 200 L208 200 L208 120 Q208 112 200 112 L200 112 Q192 112 192 120 L192 200 L184 200 L184 120 Q184 112 176 112 L168 112 Q160 112 160 120Z"/>
+    <!-- Knife -->
+    <path d="M280 112 Q272 112 272 120 L272 392 Q272 400 280 400 L304 400 Q312 400 312 392 L312 280 L340 280 Q380 280 380 220 L380 180 Q380 112 320 112 L280 112Z M312 240 L312 152 L320 152 Q340 152 340 180 L340 220 Q340 240 320 240 L312 240Z"/>
+  </g>
+</svg>
+
+

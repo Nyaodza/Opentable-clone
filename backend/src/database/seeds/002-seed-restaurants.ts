@@ -1,0 +1,188 @@
+import { v4 as uuidv4 } from 'uuid';
+
+export default {
+  up: async (queryInterface: any) => {
+    const now = new Date();
+    
+    // Get owner user ID
+    const [owners] = await queryInterface.sequelize.query(
+      "SELECT id FROM users WHERE email = 'owner@restaurant.com' LIMIT 1"
+    );
+    const ownerId = owners[0]?.id;
+
+    if (!ownerId) {
+      console.error('Owner user not found. Please run user seeds first.');
+      return;
+    }
+
+    const restaurants = [
+      {
+        id: uuidv4(),
+        ownerId,
+        name: 'The Italian Corner',
+        description: 'Authentic Italian cuisine in the heart of the city. Our restaurant offers traditional recipes passed down through generations, using only the finest imported ingredients.',
+        cuisineType: 'Italian',
+        priceRange: '$$$',
+        address: '123 Main Street',
+        city: 'New York',
+        state: 'NY',
+        zipCode: '10001',
+        country: 'USA',
+        phone: '+1-212-555-0101',
+        email: 'info@italiancorner.com',
+        website: 'https://italiancorner.com',
+        latitude: 40.7484,
+        longitude: -73.9857,
+        images: JSON.stringify([
+          'https://example.com/italian-corner-1.jpg',
+          'https://example.com/italian-corner-2.jpg',
+        ]),
+        logo: 'https://example.com/italian-corner-logo.jpg',
+        coverImage: 'https://example.com/italian-corner-cover.jpg',
+        features: JSON.stringify(['outdoor_seating', 'private_dining', 'bar', 'live_music']),
+        amenities: JSON.stringify(['wifi', 'parking', 'wheelchair_accessible', 'full_bar']),
+        dietaryRestrictions: JSON.stringify(['vegetarian', 'vegan', 'gluten_free']),
+        averageRating: 4.5,
+        totalReviews: 128,
+        totalReservations: 1543,
+        isActive: true,
+        isVerified: true,
+        verifiedAt: now,
+        cancellationPolicy: 'Cancellations must be made at least 2 hours before reservation time.',
+        reservationDeposit: 25,
+        maxAdvanceBookingDays: 30,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        ownerId,
+        name: 'Sakura Sushi Bar',
+        description: 'Experience the art of Japanese cuisine at Sakura Sushi Bar. Our master chefs prepare fresh sushi daily with fish flown in from Tokyo\'s Tsukiji market.',
+        cuisineType: 'Japanese',
+        priceRange: '$$$$',
+        address: '456 Oak Avenue',
+        city: 'San Francisco',
+        state: 'CA',
+        zipCode: '94102',
+        country: 'USA',
+        phone: '+1-415-555-0202',
+        email: 'reservations@sakurasushi.com',
+        website: 'https://sakurasushi.com',
+        latitude: 37.7749,
+        longitude: -122.4194,
+        images: JSON.stringify([
+          'https://example.com/sakura-1.jpg',
+          'https://example.com/sakura-2.jpg',
+        ]),
+        logo: 'https://example.com/sakura-logo.jpg',
+        coverImage: 'https://example.com/sakura-cover.jpg',
+        features: JSON.stringify(['sushi_bar', 'private_rooms', 'sake_selection']),
+        amenities: JSON.stringify(['wifi', 'valet_parking', 'wheelchair_accessible']),
+        dietaryRestrictions: JSON.stringify(['vegetarian', 'vegan', 'gluten_free', 'pescatarian']),
+        averageRating: 4.8,
+        totalReviews: 256,
+        totalReservations: 2341,
+        isActive: true,
+        isVerified: true,
+        verifiedAt: now,
+        cancellationPolicy: 'Cancellations must be made at least 4 hours before reservation time. Late cancellations may incur a fee.',
+        reservationDeposit: 50,
+        maxAdvanceBookingDays: 45,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        ownerId,
+        name: 'The Burger Joint',
+        description: 'Gourmet burgers made with locally sourced ingredients. From classic cheeseburgers to innovative creations, we have something for every burger lover.',
+        cuisineType: 'American',
+        priceRange: '$$',
+        address: '789 Elm Street',
+        city: 'Chicago',
+        state: 'IL',
+        zipCode: '60601',
+        country: 'USA',
+        phone: '+1-312-555-0303',
+        email: 'hello@burgerjoint.com',
+        website: 'https://burgerjoint.com',
+        latitude: 41.8781,
+        longitude: -87.6298,
+        images: JSON.stringify([
+          'https://example.com/burger-joint-1.jpg',
+          'https://example.com/burger-joint-2.jpg',
+        ]),
+        logo: 'https://example.com/burger-joint-logo.jpg',
+        coverImage: 'https://example.com/burger-joint-cover.jpg',
+        features: JSON.stringify(['outdoor_seating', 'sports_tv', 'craft_beer']),
+        amenities: JSON.stringify(['wifi', 'street_parking', 'wheelchair_accessible', 'kids_menu']),
+        dietaryRestrictions: JSON.stringify(['vegetarian', 'vegan', 'gluten_free']),
+        averageRating: 4.3,
+        totalReviews: 412,
+        totalReservations: 3256,
+        isActive: true,
+        isVerified: true,
+        verifiedAt: now,
+        cancellationPolicy: 'Free cancellation up to 1 hour before reservation.',
+        reservationDeposit: 0,
+        maxAdvanceBookingDays: 14,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        ownerId,
+        name: 'Le Petit Bistro',
+        description: 'Classic French cuisine in an intimate setting. Our chef brings the flavors of Paris to your table with seasonal menus and an extensive wine list.',
+        cuisineType: 'French',
+        priceRange: '$$$$',
+        address: '321 Wine Street',
+        city: 'Boston',
+        state: 'MA',
+        zipCode: '02108',
+        country: 'USA',
+        phone: '+1-617-555-0404',
+        email: 'bonjour@lepetitbistro.com',
+        website: 'https://lepetitbistro.com',
+        latitude: 42.3601,
+        longitude: -71.0589,
+        images: JSON.stringify([
+          'https://example.com/bistro-1.jpg',
+          'https://example.com/bistro-2.jpg',
+        ]),
+        logo: 'https://example.com/bistro-logo.jpg',
+        coverImage: 'https://example.com/bistro-cover.jpg',
+        features: JSON.stringify(['wine_cellar', 'chefs_table', 'romantic_atmosphere']),
+        amenities: JSON.stringify(['valet_parking', 'coat_check', 'wheelchair_accessible']),
+        dietaryRestrictions: JSON.stringify(['vegetarian', 'gluten_free']),
+        averageRating: 4.7,
+        totalReviews: 189,
+        totalReservations: 1876,
+        isActive: true,
+        isVerified: true,
+        verifiedAt: now,
+        cancellationPolicy: 'Cancellations must be made at least 24 hours in advance. Late cancellations will be charged 50% of the estimated bill.',
+        reservationDeposit: 75,
+        maxAdvanceBookingDays: 60,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+
+    await queryInterface.bulkInsert('restaurants', restaurants);
+  },
+
+  down: async (queryInterface: any) => {
+    await queryInterface.bulkDelete('restaurants', {
+      name: {
+        [queryInterface.sequelize.Op.in]: [
+          'The Italian Corner',
+          'Sakura Sushi Bar',
+          'The Burger Joint',
+          'Le Petit Bistro',
+        ],
+      },
+    });
+  },
+};

@@ -1,0 +1,74 @@
+# OpenTable Clone - Robots.txt
+# Production Configuration
+
+# Allow all good bots
+User-agent: *
+Allow: /
+
+# Block access to API routes
+Disallow: /api/
+
+# Block access to admin areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /restaurant-owner/
+
+# Block access to auth pages (don't index login/register)
+Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Block private areas
+Disallow: /profile/
+Disallow: /reservations/
+Disallow: /favorites/
+
+# Block search result pages (avoid duplicate content)
+Disallow: /search?*
+Disallow: /*?sort=*
+Disallow: /*?filter=*
+
+# Allow indexing of static assets
+Allow: /static/
+Allow: /images/
+Allow: /_next/static/
+
+# Block specific files
+Disallow: /*.json$
+Disallow: /*_buildManifest.js$
+Disallow: /*_middlewareManifest.js$
+Disallow: /*_ssgManifest.js$
+Disallow: /*.js.map$
+
+# Sitemap location
+Sitemap: https://opentable-clone.vercel.app/sitemap.xml
+Sitemap: https://opentable-clone.vercel.app/sitemap-0.xml
+Sitemap: https://opentable-clone.vercel.app/server-sitemap.xml
+
+# Crawl delay for specific bots
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+# Block specific unwanted bots (not all bots)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+# Note: Do NOT use wildcard patterns like *bot* as it blocks legitimate bots
+# Only block specific problematic user agents listed above

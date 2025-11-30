@@ -1,0 +1,11 @@
+{
+  "name": "opentable-simple",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "cra-template-typescript": "1.3.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-scripts": "5.0.1"
+  }
+}

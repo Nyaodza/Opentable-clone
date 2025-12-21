@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/common/error-boundary';
 import { CookieConsent } from '@/components/common/cookie-consent';
 import { WebVitalsTracker } from '@/components/analytics/web-vitals-tracker';
 import { OrganizationStructuredData, WebsiteStructuredData, LocalBusinessStructuredData } from '@/components/seo/structured-data';
+import { SkipToContent } from '@/components/accessibility/SkipToContent';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -165,14 +166,17 @@ export default function RootLayout({
         <ErrorBoundary>
           <AuthSessionProvider>
             <Providers>
+              {/* Accessibility: Skip to Content Link */}
+              <SkipToContent />
+
               {/* SEO Structured Data */}
               <OrganizationStructuredData />
               <WebsiteStructuredData />
               <LocalBusinessStructuredData />
-              
+
               <div className="min-h-screen bg-background flex flex-col">
                 <Header />
-                <main className="flex-1">
+                <main id="main-content" className="flex-1" role="main">
                   {children}
                 </main>
                 <Footer />

@@ -195,35 +195,32 @@ export const ReviewStructuredData: React.FC<ReviewStructuredDataProps> = ({ revi
   );
 };
 
-// Local business structured data
+// Software Application structured data (platform, not physical business)
 export const LocalBusinessStructuredData = () => {
-  const businessData = {
+  const applicationData = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "OpenTable Clone Platform",
+    "@type": "SoftwareApplication",
+    "name": "OpenTable Clone",
     "description": "Revolutionary restaurant reservation platform with blockchain loyalty, VR experiences, and AI-powered concierge",
     "url": "https://opentable-clone.vercel.app",
-    "telephone": "+1-555-123-4567",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "123 Tech Street",
-      "addressLocality": "San Francisco",
-      "addressRegion": "CA",
-      "postalCode": "94105",
-      "addressCountry": "US"
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Web, iOS, Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
     },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": "37.7749",
-      "longitude": "-122.4194"
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "10000",
+      "bestRating": "5",
+      "worstRating": "1"
     },
-    "openingHoursSpecification": {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": [
-        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
-      ],
-      "opens": "00:00",
-      "closes": "23:59"
+    "author": {
+      "@type": "Organization",
+      "name": "OpenTable Clone Team",
+      "url": "https://opentable-clone.vercel.app"
     },
     "sameAs": [
       "https://twitter.com/opentableclone",
@@ -233,10 +230,10 @@ export const LocalBusinessStructuredData = () => {
 
   return (
     <Script
-      id="local-business-structured-data"
+      id="software-application-structured-data"
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(businessData, null, 2)
+        __html: JSON.stringify(applicationData, null, 2)
       }}
     />
   );

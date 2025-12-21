@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // API Status Hook
 const useAPIStatus = () => {
@@ -164,18 +165,21 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <a href="/restaurants" 
-               className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg">
-              🍽️ Find Restaurants
-            </a>
-            <a href="/dashboard" 
-               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg">
-              🎯 My Dashboard
-            </a>
-            <a href="/rewards" 
-               className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg">
-              🔗 Earn Rewards
-            </a>
+            <Link
+               href="/restaurants"
+               className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-transparent min-h-[44px] flex items-center">
+              <span className="mr-2" aria-hidden="true">🍽️</span> Find Restaurants
+            </Link>
+            <Link
+               href="/dashboard"
+               className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-transparent min-h-[44px] flex items-center">
+              <span className="mr-2" aria-hidden="true">🎯</span> My Dashboard
+            </Link>
+            <Link
+               href="/rewards"
+               className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 rounded-lg font-semibold transition-colors text-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-transparent min-h-[44px] flex items-center">
+              <span className="mr-2" aria-hidden="true">🔗</span> Earn Rewards
+            </Link>
           </div>
 
           {/* Quick Stats */}
@@ -287,20 +291,23 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredRestaurants.map((restaurant) => (
               <div key={restaurant.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                <div className="relative">
-                  <img
+                <div className="relative h-48">
+                  <Image
                     src={restaurant.image}
-                    alt={restaurant.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    alt={`${restaurant.name} - ${restaurant.cuisine} restaurant in ${restaurant.location}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={restaurant.id === '1'}
                   />
                   <div className="absolute top-4 right-4 flex space-x-2">
                     {restaurant.hasVR && (
                       <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                        🥽 VR Tour
+                        <span aria-hidden="true">🥽</span> VR Tour
                       </span>
                     )}
                     <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                      🌱 {restaurant.sustainability}
+                      <span aria-hidden="true">🌱</span> <span className="sr-only">Sustainability rating:</span>{restaurant.sustainability}
                     </span>
                   </div>
                 </div>

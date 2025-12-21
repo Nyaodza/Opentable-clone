@@ -1,35 +1,46 @@
 version: '3.8'
 
+# IMPORTANT: For production, use Docker secrets or a secrets manager
+# Create a .env file with the following variables:
+# POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB, JWT_SECRET, NEXTAUTH_SECRET, REDIS_PASSWORD
+
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
-      POSTGRES_DB: opentable_clone
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-opentable_clone}
+    # SECURITY: Remove port exposure in production - only accessible within Docker network
     ports:
-      - "5432:5432"
+      - "${POSTGRES_EXTERNAL_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - opentable-network
 
   # Redis Cache
   redis:
     image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme_in_production}
+    # SECURITY: Remove port exposure in production
     ports:
-      - "6379:6379"
+      - "${REDIS_EXTERNAL_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme_in_production}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - opentable-network
 
   # Backend API
   backend:
@@ -39,21 +50,21 @@ services:
     ports:
       - "3001:3001"
     environment:
-      NODE_ENV: development
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
-      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/opentable_clone
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Required}@postgres:5432/${POSTGRES_DB:-opentable_clone}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme_in_production}@redis:6379
       ELASTICSEARCH_URL: http://elasticsearch:9200
-      JWT_SECRET: your_jwt_secret_key_change_in_production
-      JWT_EXPIRES_IN: 7d
-      JWT_REFRESH_EXPIRES_IN: 30d
-      FRONTEND_URL: http://localhost:3000
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - generate a secure random string}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
       EMAIL_HOST: maildev
       EMAIL_PORT: 1025
       EMAIL_SECURE: false
-      EMAIL_USER: noreply@opentable-clone.com
-      EMAIL_PASS: test
-      EMAIL_FROM: noreply@opentable-clone.com
+      EMAIL_USER: ${EMAIL_USER:-noreply@opentable-clone.com}
+      EMAIL_PASS: ${EMAIL_PASS:-test}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@opentable-clone.com}
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,6 +74,8 @@ services:
       - ./backend:/app
       - /app/node_modules
     command: npm run dev
+    networks:
+      - opentable-network
 
   # Frontend Application
   frontend:
@@ -72,10 +85,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001/api
-      NEXT_PUBLIC_SOCKET_URL: http://localhost:3001
-      NEXTAUTH_URL: http://localhost:3000
-      NEXTAUTH_SECRET: your_nextauth_secret_key_change_in_production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001/api}
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-http://localhost:3001}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required - generate a secure random string}
     depends_on:
       - backend
     volumes:
@@ -83,16 +96,21 @@ services:
       - /app/node_modules
       - /app/.next
     command: npm run dev
+    networks:
+      - opentable-network
 
   # Elasticsearch for Search
+  # SECURITY: Enable xpack.security in production with proper certificates
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
+      - xpack.security.enabled=${ELASTICSEARCH_SECURITY_ENABLED:-false}
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD:-changeme}
+    # SECURITY: Remove port exposure in production - only accessible within Docker network
     ports:
-      - "9200:9200"
+      - "${ELASTICSEARCH_EXTERNAL_PORT:-9200}:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
@@ -100,6 +118,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    networks:
+      - opentable-network
 
   # MailDev for Email Testing
   maildev:
@@ -109,15 +129,20 @@ services:
       - "1025:1025"  # SMTP Server
 
   # pgAdmin for Database Management
+  # SECURITY: Use strong credentials and consider disabling in production
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?PGADMIN_PASSWORD is required}
     ports:
-      - "5050:80"
+      - "${PGADMIN_EXTERNAL_PORT:-5050}:80"
     depends_on:
       - postgres
+    networks:
+      - opentable-network
+    profiles:
+      - dev-tools
 
   # Nginx Reverse Proxy (for production-like setup)
   nginx:
@@ -129,6 +154,12 @@ services:
     depends_on:
       - frontend
       - backend
+    networks:
+      - opentable-network
+
+networks:
+  opentable-network:
+    driver: bridge
 
 volumes:
   postgres_data:

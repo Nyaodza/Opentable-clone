@@ -7,6 +7,23 @@ module.exports = {
   ],
   theme: {
     extend: {
+      // Consistent typography scale for visual hierarchy
+      fontSize: {
+        'display-2xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-xl': ['3.75rem', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-lg': ['3rem', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'display-md': ['2.25rem', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'display-sm': ['1.875rem', { lineHeight: '1.3', fontWeight: '600' }],
+        'display-xs': ['1.5rem', { lineHeight: '1.4', fontWeight: '600' }],
+        'body-xl': ['1.25rem', { lineHeight: '1.6' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.6' }],
+        'body-md': ['1rem', { lineHeight: '1.6' }],
+        'body-sm': ['0.875rem', { lineHeight: '1.5' }],
+        'body-xs': ['0.75rem', { lineHeight: '1.5' }],
+        'label-lg': ['0.875rem', { lineHeight: '1.4', fontWeight: '500' }],
+        'label-md': ['0.75rem', { lineHeight: '1.4', fontWeight: '500' }],
+        'label-sm': ['0.6875rem', { lineHeight: '1.4', fontWeight: '500' }],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

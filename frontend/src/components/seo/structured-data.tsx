@@ -269,3 +269,70 @@ export const BreadcrumbStructuredData: React.FC<BreadcrumbStructuredDataProps> =
     />
   );
 };
+
+// FAQ structured data for help/FAQ pages
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface FAQStructuredDataProps {
+  faqs: FAQItem[];
+}
+
+/**
+ * FAQ Page structured data for rich search results
+ * Use on help pages, FAQ sections, and support pages
+ */
+export const FAQStructuredData: React.FC<FAQStructuredDataProps> = ({ faqs }) => {
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
+  return (
+    <Script
+      id="faq-structured-data"
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(faqData, null, 2)
+      }}
+    />
+  );
+};
+
+// Default FAQs for the help page
+export const defaultFAQs: FAQItem[] = [
+  {
+    question: "How do I make a restaurant reservation?",
+    answer: "To make a reservation, search for a restaurant, select your preferred date and time, choose the party size, and click 'Reserve'. You'll receive a confirmation email with your booking details."
+  },
+  {
+    question: "Can I modify or cancel my reservation?",
+    answer: "Yes, you can modify or cancel your reservation through your account dashboard or by clicking the link in your confirmation email. Most restaurants allow changes up to 2 hours before your reservation time."
+  },
+  {
+    question: "How does the loyalty rewards program work?",
+    answer: "Earn points for every reservation you complete. Points can be redeemed for dining credits, exclusive experiences, and partner rewards. The more you dine, the more rewards you unlock."
+  },
+  {
+    question: "Is there a fee to use OpenTable Clone?",
+    answer: "No, making reservations through OpenTable Clone is completely free for diners. Restaurants pay a small fee to be listed on our platform."
+  },
+  {
+    question: "How do I leave a review for a restaurant?",
+    answer: "After completing your dining experience, you'll receive an email invitation to leave a review. You can also go to your reservation history in your account and click 'Write Review' next to any completed reservation."
+  },
+  {
+    question: "What if I'm running late for my reservation?",
+    answer: "If you're running late, please call the restaurant directly. Most restaurants hold reservations for 15 minutes past the booking time. You can find the restaurant's phone number in your confirmation email."
+  }
+];

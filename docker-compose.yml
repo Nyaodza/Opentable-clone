@@ -25,10 +25,20 @@ services:
     networks:
       - opentable-network
 
-  # Redis Cache
+  # Redis Cache with persistence
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme_in_production}
+    # Enable both RDB snapshots and AOF for durability
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-changeme_in_production}
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
     # SECURITY: Remove port exposure in production
     ports:
       - "${REDIS_EXTERNAL_PORT:-6379}:6379"

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Mock user for demo - in production, this would come from auth context
 const useMockAuth = () => {
@@ -327,13 +328,31 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <nav
-            className="lg:hidden border-t border-gray-200 animate-fadeIn"
-            aria-label="Mobile navigation"
-            role="navigation"
-          >
+        {/* Mobile menu with smooth slide animation */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.nav
+              className="lg:hidden border-t border-gray-200 overflow-hidden"
+              aria-label="Mobile navigation"
+              role="navigation"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{
+                height: 'auto',
+                opacity: 1,
+                transition: {
+                  height: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] },
+                  opacity: { duration: 0.2, delay: 0.1 }
+                }
+              }}
+              exit={{
+                height: 0,
+                opacity: 0,
+                transition: {
+                  height: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+                  opacity: { duration: 0.15 }
+                }
+              }}
+            >
             {/* Mobile Search */}
             <div className="p-4 border-b border-gray-100">
               <form onSubmit={handleSearch} role="search" aria-label="Search restaurants">
@@ -440,8 +459,9 @@ export function Header() {
                 </>
               )}
             </div>
-          </nav>
+          </motion.nav>
         )}
+        </AnimatePresence>
       </nav>
     </header>
   );

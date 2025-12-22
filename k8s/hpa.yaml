@@ -1,0 +1,138 @@
+# Horizontal Pod Autoscaler for automatic scaling based on resource utilization
+# Requires metrics-server to be installed in the cluster
+
+---
+# Frontend HPA - scales based on CPU and memory
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: opentable-frontend-hpa
+  namespace: opentable
+  labels:
+    app: opentable-frontend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: opentable-frontend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # Scale based on CPU utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    # Scale based on memory utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    # Conservative scale-up to avoid over-provisioning
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+      selectPolicy: Min
+    # Slower scale-down to prevent flapping
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+        - type: Percent
+          value: 25
+          periodSeconds: 120
+      selectPolicy: Min
+
+---
+# Backend HPA - scales based on CPU, memory, and custom metrics
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: opentable-backend-hpa
+  namespace: opentable
+  labels:
+    app: opentable-backend
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: opentable-backend
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    # Scale based on CPU utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+    # Scale based on memory utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+  behavior:
+    # More aggressive scale-up for backend to handle traffic spikes
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+      selectPolicy: Max
+    # Conservative scale-down for backend
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 120
+        - type: Percent
+          value: 20
+          periodSeconds: 120
+      selectPolicy: Min
+
+---
+# Pod Disruption Budget for frontend - ensure availability during updates
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: opentable-frontend-pdb
+  namespace: opentable
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: opentable-frontend
+
+---
+# Pod Disruption Budget for backend - ensure availability during updates
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: opentable-backend-pdb
+  namespace: opentable
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: opentable-backend
